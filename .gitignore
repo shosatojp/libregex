@@ -1,3 +1,24 @@
 /.vscode/settings.json
 /bin
 *.out
+
+# autotools
+*.scan
+*.log
+
+.deps/
+/*.cache/
+/conf/
+
+compile
+*.in
+config.h
+*.status
+stamp-h1
+depcomp
+INSTALL
+install-sh
+missing
+*.m4
+
+Makefile
