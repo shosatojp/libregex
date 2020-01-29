@@ -1,8 +1,21 @@
-all:FORCE
-	/usr/bin/gcc util.c options.c array.c token.c consume.c make.c capture.c main.c -std=gnu99 -O3
-	./a.out
+PROGRAM = libregex
+CC = gcc
+COPTION = -std=gnu99 -O3
+BINDIR = bin
+SRCDIR = src
+TARGET = $(BINDIR)/$(PROGRAM)
+SRCS = $(shell find $(SRCDIR) -name *.c)
 
-clear:
-	rm *.out
 
-FORCE:;
+default: $(TARGET)
+
+$(TARGET): $(SRCS)
+	@mkdir -p $(BINDIR)
+	$(CC) $^ -o $@
+
+clean:
+	rm -f $(TARGET)
+	rm -r $(BINDIR)
+
+run: $(TARGET)
+	./$(TARGET)
