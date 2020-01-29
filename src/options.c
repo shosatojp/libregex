@@ -5,8 +5,9 @@
 #include "array.h"
 #include "libregex.h"
 
-void regex_options_init(regex_options* op){
+void regex_options_init(regex_options* op) {
     memset(op, 0, sizeof(regex_options));
+    op->captured = array_new(sizeof(regex_capture*), true, 8);
 }
 
 regex_options* regex_options_new() {

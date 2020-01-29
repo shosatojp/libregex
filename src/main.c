@@ -7,11 +7,11 @@
 
 int main(int argc, char* argv[]) {
     /* 文字列 */
-    const char *str = argc > 1 ? argv[1] : "he@hige.jp\nhoge@gmail.com",
+    const char *str = argc > 1 ? argv[1] : "<a> <b>",
                *ptr = str;
 
     /* 正規表現 */
-    regex* _regex = regex_compile(argc > 2 ? argv[2] : "(\\w+)@[\\w.]+", "ims");
+    regex* _regex = regex_compile(argc > 2 ? argv[2] : "<.+?>", "ims");
 
     /* findall */
     regex_found f;
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
     /* キャプチャ＆表示 */
     array_each(op.captured,
                char* str = regex_capture_str(array_e);
-               printf("$%d : %s\n", i + 1, str);
+               printf("$%d : %s\n", array_i + 1, str);
                free(str));
 
     /* 終了処理 */

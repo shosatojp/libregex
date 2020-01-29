@@ -1,6 +1,7 @@
 #pragma once
 #include <stdarg.h>
 #include <stdbool.h>
+#define DEBUG
 
 struct _regex;
 struct _regex_options;
@@ -90,6 +91,8 @@ regex_state consume_char(const char** ptr, regex* m, regex_options* op);
 regex_state consume_span(const char** ptr, regex* m, regex_options* op);
 regex_state consume_times(const char** ptr, regex* m, regex_options* op);
 regex_state consume_plus(const char** ptr, regex* m, regex_options* op);
+regex_state consume_plus_non_greedy(const char** ptr, regex* m, regex_options* op);
+regex_state consume_plus_greedy(const char** ptr, regex* m, regex_options* op);
 regex_state consume_or(const char** ptr, regex* m, regex_options* op);
 regex_state consume_nor(const char** ptr, regex* m, regex_options* op);
 regex_state consume_head(const char** ptr, regex* m, regex_options* op);
@@ -136,6 +139,7 @@ char upper_case(char c);
 char lower_case(char c);
 bool is_upper_case(char c);
 bool is_lower_case(char c);
+regex* next_sibling(regex* m0);
 
 /* options.c */
 regex_options* regex_options_new();

@@ -26,11 +26,10 @@ array_element* array_set(array* _array, array_element* e, int index);
 int array_empty(array* _array);
 int array_clear(array* _array);
 
-/**
- * element = `array_e'
- */
-#define array_each(ARRAY, STMT)                        \
-    for (int i = 0; i < (ARRAY)->length; i++) {        \
-        array_element* array_e = array_at((ARRAY), i); \
-        STMT;                                          \
+#define array_i array_i
+#define array_e array_e
+#define array_each(ARRAY, STMT)                                   \
+    for (int array_i = 0; array_i < (ARRAY)->length; array_i++) { \
+        array_element* array_e = array_at((ARRAY), array_i);      \
+        STMT;                                                     \
     }

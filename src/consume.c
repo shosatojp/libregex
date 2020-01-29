@@ -5,7 +5,6 @@
 #include "array.h"
 #include "libregex.h"
 
-
 regex_state consume_char(const char** ptr, regex* m, regex_options* op) {
     consumer_debug(m, "consumer_char('%c')", m->c);
     if (**ptr == m->c ||
@@ -56,15 +55,59 @@ regex_state consume_times(const char** ptr, regex* m, regex_options* op) {
 }
 
 regex_state consume_plus(const char** ptr, regex* m, regex_options* op) {
-    consumer_debug(m, "consumer_plus()");
+    return m->non_greedy
+               ? consume_plus_non_greedy(ptr, m, op)
+               : consume_plus_greedy(ptr, m, op);
+}
+
+/* non greedy */
+regex_state consume_plus_non_greedy(const char** ptr, regex* m, regex_options* op) {
+    consumer_debug(m, "consume_plus_non_greedy()");
+
+    regex* next = next_sibling(m);
+
     const char* init = *ptr;
     regex* m0 = array_at(m->ms, 0);
     while (**ptr) {
+        const char* head = *ptr;
         const char* _ptr = *ptr;
         regex_state result = m0->fn(&_ptr, m0, op);
         if (result == RS_MATCHED) {
-            (*ptr)++;
-            if (m->non_greedy) return RS_MATCHED;
+            if (next && next->fn(&_ptr, next, op) == RS_MATCHED) {
+                // 次の条件にマッチするまで
+                (*ptr)++;
+                break;
+            } else {
+                *ptr = head + 1;
+            }
+        } else {
+            break;
+        }
+    }
+    return (m->type != RT_PLUS || init != *ptr) ? RS_MATCHED : RS_FAILED;
+}
+
+/* greedy */
+regex_state consume_plus_greedy(const char** ptr, regex* m, regex_options* op) {
+    consumer_debug(m, "consume_plus_greedy()");
+
+    regex* next = next_sibling(m);
+
+    const char* init = *ptr;
+    *ptr = op->tail - 1;
+    regex* m0 = array_at(m->ms, 0);
+    while (init < *ptr) {
+        const char* head = *ptr;
+        const char* _ptr = *ptr;
+        regex_state result = m0->fn(&_ptr, m0, op);
+        if (result == RS_MATCHED) {
+            if (next && next->fn(&_ptr, next, op) == RS_MATCHED) {
+                // 後ろから条件nextにマッチするまで
+                (*ptr)++;
+                break;
+            } else {
+                *ptr = head - 1;
+            }
         } else {
             break;
         }
@@ -80,8 +123,6 @@ regex_state consume_or(const char** ptr, regex* m, regex_options* op) {
         regex* mi = array_at(m->ms, i);
         if (mi->fn(ptr, mi, op) == RS_MATCHED) {
             if (m->type == RT_OR && !m->noregex_capture) {
-                if (!op->captured)
-                    op->captured = array_new(sizeof(regex_options*), true, 4);
                 array_push(op->captured, regex_capture_new(init, *ptr - 1));
             }
             return RS_MATCHED;

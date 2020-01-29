@@ -13,6 +13,8 @@
 
 compile
 config.h
+*.in
+configure
 *.status
 stamp-h1
 depcomp
