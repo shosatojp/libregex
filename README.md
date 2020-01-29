@@ -6,3 +6,12 @@ Regular expression library for C
 
 * capture
 * find all by regex
+
+
+## Build
+
+```sh
+./autogen.sh
+./configure
+make
+```
