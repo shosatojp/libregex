@@ -7,11 +7,11 @@
 
 int main(int argc, char* argv[]) {
     /* 文字列 */
-    const char *str = argc > 1 ? argv[1] : "123,456",
+    const char *str = argc > 1 ? argv[1] : "he@hige.jp\nhoge@gmail.com",
                *ptr = str;
 
     /* 正規表現 */
-    regex* _regex = regex_compile(argc > 2 ? argv[2] : "(\\d+|,)", "ims");
+    regex* _regex = regex_compile(argc > 2 ? argv[2] : "(\\w+)@[\\w.]+", "ims");
 
     /* findall */
     regex_found f;
@@ -19,6 +19,7 @@ int main(int argc, char* argv[]) {
     regex_find_all(&ptr, _regex, &f);
     array_each(f.results,
                printf("%s\n", (const char*)array_e));
+    exit(0);
 
     /* init */
     ptr = str;
