@@ -7,3 +7,6 @@ clean: distclean
 	-rm *.tar.gz
 	-find . -name "*.in" -delete
 	-rm configure
+	-rm conf/*
+	-rm -r conf
+	-rm config.h.in~
