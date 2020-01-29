@@ -7,14 +7,14 @@
 
 int main(int argc, char* argv[]) {
     /* 文字列 */
-    const char *str = argc > 1 ? argv[1] : "aaa\na",
+    const char *str = argc > 1 ? argv[1] : "djdj33jjkkei11lkjl4jlkjdfsljk6666",
                *ptr = str;
 
     /* 正規表現 */
-    regex* _regex = compile_regex(argc > 2 ? argv[2] : "(a+)", "ims");
+    regex* _regex = compile_regex(argc > 2 ? argv[2] : "(\\d+|jj|kk)", "ims");
 
-    // find_all(&ptr, _regex);
-    // exit(0);
+    find_all(&ptr, _regex);
+    exit(0);
 
     /* 実行 */
     match_state result = match_regex(&ptr, _regex);
