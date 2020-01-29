@@ -1,6 +1,6 @@
 PROGRAM = libregex
 CC = gcc
-COPTION = -std=gnu99 -O3
+COPTION = -std=gnu99 -O3 -g
 BINDIR = bin
 SRCDIR = src
 TARGET = $(BINDIR)/$(PROGRAM)
@@ -11,7 +11,7 @@ default: $(TARGET)
 
 $(TARGET): $(SRCS)
 	@mkdir -p $(BINDIR)
-	$(CC) $^ -o $@
+	$(CC) $^ -o $@ $(COPTION)
 
 clean:
 	rm -f $(TARGET)
