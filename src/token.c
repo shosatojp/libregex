@@ -300,25 +300,3 @@ int matcher_depth(regex* m0) {
     }
     return depth;
 }
-
-int find_all(const char** ptr, regex* m) {
-    const char* head = *ptr;
-    regex_options op;
-    while (**ptr) {
-        memset(&op, 0, sizeof(regex_options));
-        const char* init = *ptr;
-        op.head = head;
-        switch (regex_match(ptr, m, &op)) {
-            case RS_MATCHED: {
-                char* str = (char*)strcut(init, *ptr - 1);
-                printf(">>%s\n", str);
-                free(str);
-                break;
-            }
-            case RS_FAILED:
-                *ptr = init + 1;
-                break;
-        }
-        regex_options_destruct(&op);
-    }
-}

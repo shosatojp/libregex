@@ -5,12 +5,14 @@
 struct _regex;
 struct _regex_options;
 struct _regex_capture;
+struct _regex_found;
 enum _regex_state;
 enum _regex_type;
 
 typedef struct _regex regex;
 typedef struct _regex_options regex_options;
 typedef struct _regex_capture regex_capture;
+typedef struct _regex_found regex_found;
 typedef enum _regex_state regex_state;
 typedef enum _regex_type regex_type;
 
@@ -72,8 +74,14 @@ struct _regex_options {
 
 /* regex_capture result struct */
 struct _regex_capture {
+    int offset;
     const char* begin;
     const char* end;
+};
+
+/* regex found */
+struct _regex_found {
+    array* results;
 };
 
 /* consume.c */
@@ -115,7 +123,6 @@ int regex_destruct(regex* root);
 int matcher_depth(regex* m0);
 void consumer_debug(regex* m, const char* format, ...);
 void debug(const char* format, ...);
-int find_all(const char** ptr, regex* m);
 
 /* regex_capture.c */
 regex_capture* regex_capture_new(const char* begin, const char* end);
@@ -134,3 +141,8 @@ bool is_lower_case(char c);
 regex_options* regex_options_new();
 int regex_options_destruct(regex_options* op);
 void regex_options_init(regex_options* op);
+
+/* find.c */
+int regex_find_all(const char** ptr, regex* m, regex_found* f);
+int regex_found_destruct(regex_found* f);
+int regex_found_init(regex_found* f);

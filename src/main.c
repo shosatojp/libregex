@@ -13,8 +13,15 @@ int main(int argc, char* argv[]) {
     /* 正規表現 */
     regex* _regex = regex_compile(argc > 2 ? argv[2] : "(\\d+|,)", "ims");
 
-    // find_all(&ptr, _regex);
-    // exit(0);
+    /* findall */
+    regex_found f;
+    regex_found_init(&f);
+    regex_find_all(&ptr, _regex, &f);
+    array_each(f.results,
+               printf("%s\n", (const char*)array_e));
+
+    /* init */
+    ptr = str;
 
     regex_options op;
     regex_options_init(&op);
@@ -23,11 +30,10 @@ int main(int argc, char* argv[]) {
     regex_state result = regex_match(&ptr, _regex, &op);
 
     /* キャプチャ＆表示 */
-    for (int i = 0; i < op.captured->length; i++) {
-        char* str = regex_capture_str(array_at(op.captured, i));
-        printf("$%d : %s\n", i + 1, str);
-        free(str);
-    }
+    array_each(op.captured,
+               char* str = regex_capture_str(array_e);
+               printf("$%d : %s\n", i + 1, str);
+               free(str));
 
     /* 終了処理 */
     regex_options_destruct(&op);

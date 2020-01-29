@@ -25,3 +25,12 @@ array_element* array_at(array* _array, int index);
 array_element* array_set(array* _array, array_element* e, int index);
 int array_empty(array* _array);
 int array_clear(array* _array);
+
+/**
+ * element = `array_e'
+ */
+#define array_each(ARRAY, STMT)                        \
+    for (int i = 0; i < (ARRAY)->length; i++) {        \
+        array_element* array_e = array_at((ARRAY), i); \
+        STMT;                                          \
+    }
