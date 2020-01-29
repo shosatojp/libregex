@@ -3,9 +3,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-array* array_new(int elem_size, int isptr) {
+void _array_debug(const char* format, ...) {
+#ifdef DEBUG
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+    fflush(stdout);
+#endif
+}
+
+array* array_new(int elem_size, int isptr, int capacity) {
     array* _array = (array*)calloc(sizeof(array), 1);
     array_init(_array, elem_size, isptr);
+    array_expand(_array, capacity);
     return _array;
 }
 
@@ -28,7 +39,7 @@ int array_expand(array* _array, int capacity) {
         _array->capacity = capacity;
         return 0;
     } else {
-        fprintf(stdout, "failed to allocate memory.");
+        _array_debug("failed to allocate memory.\n");
         return -1;
     }
 }
@@ -39,11 +50,11 @@ int array_push(array* _array, void* e) {
 
 int array_ins(array* _array, void* e, int index) {
     if (index > _array->length || index < 0) {
-        fprintf(stdout, "index out of range.");
+        _array_debug("index out of range.\n");
         return -1;
     } else if (_array->capacity < _array->length + 1 &&
                array_expand(_array, (_array->capacity ? _array->capacity : DEFAULT_CAPACITY) * 2) < 0) {
-        fprintf(stdout, "failed to expand.");
+        _array_debug("failed to expand.\n");
         return -1;
     } else {
         int bytes = _array->isptr ? 1 : _array->elem_size;
@@ -57,26 +68,38 @@ int array_ins(array* _array, void* e, int index) {
     }
 }
 
-int array_del(array* _array, int index) {
+/**
+ * you need to **destruct** object pointed by deleted ptr
+ */
+array_element* array_del(array* _array, int index) {
     if (index >= _array->length || index < 0) {
-        fprintf(stdout, "index out of range.");
-        return -1;
+        _array_debug("index out of range.\n");
+        return NULL;
     } else {
         int bytes = _array->isptr ? 1 : _array->elem_size;
-        memmove(_array->data + (index * bytes),
-                _array->data + (index + 1) * bytes,
+        void** head = _array->data + (index * bytes);
+        array_element* ptr = _array->isptr ? *head : NULL;
+        memmove(head, head + bytes,
                 (_array->length - index - 1) * bytes);
         memset(_array->data + (_array->length - 1) * bytes, 0, 1);
         _array->length--;
-        return 0;
+        return ptr;
     }
 }
 
+/**
+ * empty array
+ * you need to **destruct** object pointed by ptrs
+ */
 int array_empty(array* _array) {
     _array->length = 0;
     return 0;
 }
 
+/**
+ * destruct array data
+ * you need to **destruct** object pointed by ptrs
+ */
 int array_clear(array* _array) {
     if (_array->data) {
         free(_array->data);
@@ -93,13 +116,19 @@ void* array_at(array* _array, int index) {
     return _array->isptr ? *ptr : ptr;
 }
 
-int array_set(array* _array, Element* e, int index) {
+/**
+ * overwrite element
+ * you need to **destruct** object pointed by overwritten ptr
+ */
+array_element* array_set(array* _array, array_element* e, int index) {
     if (-1 < index && index < _array->length) {
         int bytes = _array->isptr ? 1 : _array->elem_size;
+        void** ptr = _array->data + (index * bytes);
+        array_element* p = _array->isptr ? *ptr : NULL;
         memcpy(_array->data + (index * bytes), _array->isptr ? &e : e, bytes);
-        return 0;
+        return p;
     } else {
-        fprintf(stderr, "index out of range.\n");
-        return -1;
+        _array_debug("index out of range.\n");
+        return NULL;
     }
 }

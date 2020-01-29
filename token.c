@@ -6,9 +6,8 @@
 #include "array.h"
 #include "libregex.h"
 
-char tokenize(struct matcher* root, const char** pat) {
-    root->ms = array_new(sizeof(void*), true);
-    array_expand(root->ms, 8);
+char tokenize(regex* root, const char** pat) {
+    root->ms = array_new(sizeof(void*), true, 8);
 
     int count = 0;
     char c = '\0';
@@ -18,8 +17,8 @@ char tokenize(struct matcher* root, const char** pat) {
         switch (c) {
             case '+':
             case '*': {
-                struct matcher* m0 = (struct matcher*)array_at(root->ms, count - 1);
-                struct matcher* m;
+                regex* m0 = array_at(root->ms, count - 1);
+                regex* m;
                 switch (c) {
                     case '+':
                         m = make_consume_plus_matcher(root, *(*pat - 1), m0);
@@ -53,13 +52,13 @@ char tokenize(struct matcher* root, const char** pat) {
                 break;
             }
             case '(': {
-                struct matcher* mor = make_consume_or_matcher(root);
+                regex* mor = make_consume_or_matcher(root);
                 (*pat)++;  // skip '('
 
                 // goto downer
                 bool break_while = false;
                 while (!break_while) {
-                    struct matcher* mtmp = make_consume_seq_matcher(root);
+                    regex* mtmp = make_consume_seq_matcher(root);
                     mtmp->mp = mor;
                     switch (tokenize(mtmp, pat)) {
                         case '|':
@@ -77,7 +76,7 @@ char tokenize(struct matcher* root, const char** pat) {
             }
             case ')': {
                 // goto upper
-                if (root->mp->type == MT_OR) {
+                if (root->mp->type == RT_OR) {
                     return ')';
                 } else {
                     break;
@@ -85,7 +84,7 @@ char tokenize(struct matcher* root, const char** pat) {
             }
             case '|': {
                 // goto next sibling
-                if (root->mp->type == MT_OR) {
+                if (root->mp->type == RT_OR) {
                     (*pat)++;  // skip '|'
                     return '|';
                 } else {
@@ -93,7 +92,7 @@ char tokenize(struct matcher* root, const char** pat) {
                 }
             }
             case '[': {
-                struct matcher* manyof = NULL;
+                regex* manyof = NULL;
                 if (*(*pat + 1) == '^') {
                     manyof = make_consume_nonof_matcher(root);
                     (*pat) += 2;  // skip '[^'
@@ -105,7 +104,7 @@ char tokenize(struct matcher* root, const char** pat) {
                 // goto downer
                 bool break_while = false;
                 while (!break_while && **pat != ']') {
-                    struct matcher* mtmp = make_consume_seq_matcher(root);
+                    regex* mtmp = make_consume_seq_matcher(root);
                     mtmp->mp = manyof;
                     switch (tokenize(mtmp, pat)) {
                         case ']':
@@ -121,19 +120,19 @@ char tokenize(struct matcher* root, const char** pat) {
                 break;
             }
             case ']': {
-                if (root->mp->type == MT_ANYOF || root->mp->type == MT_NONOF) {
+                if (root->mp->type == RT_ANYOF || root->mp->type == RT_NONOF) {
                     return ']';
                 } else {
                     break;
                 }
             }
             case '?': {
-                if (root->mp->type == MT_OR && *(*pat + 1) == ':') {
+                if (root->mp->type == RT_OR && *(*pat + 1) == ':') {
                     (*pat)++;
-                    root->mp->nocapture = true;
+                    root->mp->noregex_capture = true;
                 } else {
-                    struct matcher* m0 = (struct matcher*)array_at(root->ms, count - 1);
-                    struct matcher* m = make_consume_times_matcher(root, 0, 1, m0);
+                    regex* m0 = array_at(root->ms, count - 1);
+                    regex* m = make_consume_times_matcher(root, 0, 1, m0);
 
                     array_del(root->ms, root->ms->length - 1);
                     array_push(root->ms, m);
@@ -143,29 +142,31 @@ char tokenize(struct matcher* root, const char** pat) {
             }
             case '{': {
                 int u = -1, v = -1;
-                struct matcher* m_root = make_pattern_matcher(root, "\\{(\\d+)(?,(\\d+))\\}");
-                root_executor(pat, m_root);
+                regex* m_root = make_pattern_matcher(root, "\\{(\\d+)(?,(\\d+))\\}");
+
+                regex_options op;
+                memset(&op, 0, sizeof(regex_options));
+
+                regex_match(pat, m_root, &op);
                 (*pat)--;  // パターン読み取りで過ぎるから一つ戻す
 
-                struct Array* captured = array_new(sizeof(struct capture*), true);
-                _captured_all(m_root, captured);
-
-                switch (captured->length) {
+                switch (op.captured->length) {
                     case 1: {
-                        v = capture_int((struct capture*)array_at(captured, 0));
+                        v = regex_capture_int(array_at(op.captured, 0));
                         break;
                     }
                     case 2: {
-                        u = capture_int((struct capture*)array_at(captured, 0));
-                        v = capture_int((struct capture*)array_at(captured, 1));
+                        u = regex_capture_int(array_at(op.captured, 0));
+                        v = regex_capture_int(array_at(op.captured, 1));
                     }
                     default:
                         break;
                 }
-                destruct_matcher(m_root);
+                regex_options_destruct(&op);
+                regex_destruct(m_root);
 
-                struct matcher* m0 = (struct matcher*)array_at(root->ms, count - 1);
-                struct matcher* m = make_consume_times_matcher(root, u, v, m0);
+                regex* m0 = array_at(root->ms, count - 1);
+                regex* m = make_consume_times_matcher(root, u, v, m0);
 
                 array_del(root->ms, root->ms->length - 1);
                 array_push(root->ms, m);
@@ -223,11 +224,15 @@ char tokenize(struct matcher* root, const char** pat) {
                 break;
             }
             case '-': {
-                if (root->mp->type == MT_ANYOF || root->mp->type == MT_NONOF) {
-                    struct matcher* m = make_consume_span_matcher(root, *(*pat - 1), *(*pat + 1));
+                if (root->mp->type == RT_ANYOF || root->mp->type == RT_NONOF) {
+                    regex* m = make_consume_span_matcher(root, *(*pat - 1), *(*pat + 1));
                     (*pat)++;
 
-                    array_del(root->mp->ms, root->mp->ms->length - 1);  // TODO: free()
+                    regex* del = array_del(root->mp->ms, root->mp->ms->length - 1);
+                    if (del) {
+                        regex_destruct(del);
+                    }
+
                     array_push(root->ms, m);
                     count++;
                     break;
@@ -241,21 +246,17 @@ char tokenize(struct matcher* root, const char** pat) {
             }
         }
         (*pat)++;
-        if (root->mp && (root->mp->type == MT_ANYOF || root->mp->type == MT_NONOF)) {
+        if (root->mp && (root->mp->type == RT_ANYOF || root->mp->type == RT_NONOF)) {
             return '\0';
         }
     }
 }
 
-int destruct_matcher(struct matcher* root) {
+int regex_destruct(regex* root) {
     if (root->ms) {
         for (int i = 0; i < root->ms->length; i++) {
-            struct matcher* m = (struct matcher*)array_at(root->ms, i);
-            if (m->captured) {
-                free(m->captured);
-                m->captured = NULL;
-            }
-            destruct_matcher(m);
+            regex* m = array_at(root->ms, i);
+            regex_destruct(m);
             if (m) {
                 free(m);
                 m = NULL;
@@ -266,23 +267,7 @@ int destruct_matcher(struct matcher* root) {
     }
 }
 
-/* initialize str based data */
-int clear_matcher(struct matcher* root) {
-    if (root->ms) {
-        for (int i = 0; i < root->ms->length; i++) {
-            struct matcher* m = (struct matcher*)array_at(root->ms, i);
-            if (m->captured) {
-                free(m->captured);
-                m->captured = NULL;
-            }
-            clear_matcher(m);
-        }
-    }
-    root->head = NULL;
-    root->tail = NULL;
-}
-
-void consumer_debug(struct matcher* m, const char* format, ...) {
+void consumer_debug(regex* m, const char* format, ...) {
 #ifdef DEBUG
     for (int i = 0, depth = matcher_depth(m); i < depth; i++) {
         printf("|   ");
@@ -306,8 +291,8 @@ void debug(const char* format, ...) {
 #endif
 }
 
-int matcher_depth(struct matcher* m0) {
-    struct matcher* m = m0;
+int matcher_depth(regex* m0) {
+    regex* m = m0;
     int depth = 0;
     while (m->mp) {
         m = m->mp;
@@ -316,22 +301,24 @@ int matcher_depth(struct matcher* m0) {
     return depth;
 }
 
-int find_all(const char** ptr, struct matcher* m) {
+int find_all(const char** ptr, regex* m) {
     const char* head = *ptr;
+    regex_options op;
     while (**ptr) {
+        memset(&op, 0, sizeof(regex_options));
         const char* init = *ptr;
-        m->head = head;
-        switch (match_regex(ptr, m)) {
-            case MS_MATCHED: {
+        op.head = head;
+        switch (regex_match(ptr, m, &op)) {
+            case RS_MATCHED: {
                 char* str = (char*)strcut(init, *ptr - 1);
                 printf(">>%s\n", str);
                 free(str);
                 break;
             }
-            case MS_FAILED:
+            case RS_FAILED:
                 *ptr = init + 1;
                 break;
         }
-        clear_matcher(m);
+        regex_options_destruct(&op);
     }
 }
