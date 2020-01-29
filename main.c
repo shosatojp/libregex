@@ -7,32 +7,33 @@
 
 int main(int argc, char* argv[]) {
     /* 文字列 */
-    const char *str = argc > 1 ? argv[1] : "djdj33jjkkei11lkjl4jlkjdfsljk6666",
+    const char *str = argc > 1 ? argv[1] : "123,456",
                *ptr = str;
 
     /* 正規表現 */
-    regex* _regex = compile_regex(argc > 2 ? argv[2] : "(\\d+|jj|kk)", "ims");
+    regex* _regex = regex_compile(argc > 2 ? argv[2] : "(\\d+|,)", "ims");
 
-    find_all(&ptr, _regex);
-    exit(0);
+    // find_all(&ptr, _regex);
+    // exit(0);
+
+    regex_options op;
+    regex_options_init(&op);
 
     /* 実行 */
-    match_state result = match_regex(&ptr, _regex);
+    regex_state result = regex_match(&ptr, _regex, &op);
 
     /* キャプチャ＆表示 */
-    array* captured = captured_all(_regex);
-    for (int i = 0; i < captured->length; i++) {
-        char* str = capture_str((struct capture*)array_at(captured, i));
+    for (int i = 0; i < op.captured->length; i++) {
+        char* str = regex_capture_str(array_at(op.captured, i));
         printf("$%d : %s\n", i + 1, str);
         free(str);
     }
-    free(captured);
 
     /* 終了処理 */
-    clear_regex(_regex);
-    destruct_regex(_regex);
+    regex_options_destruct(&op);
+    regex_destruct(_regex);
     free(_regex);
 
     debug("current : %c (at %ld)\n", *ptr, ptr - str);
-    printf("%s\n", result == MS_FAILED ? "FAILED" : "MATCHED");
+    printf("%s\n", result == RS_FAILED ? "FAILED" : "MATCHED");
 }
