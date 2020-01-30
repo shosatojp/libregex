@@ -140,7 +140,7 @@ char tokenize(regex* root, const char** pat) {
             }
             case '{': {
                 int u = -1, v = -1;
-                regex* m_root = make_pattern_matcher(root, "\\{(\\d+)\\}");
+                regex* m_root = make_pattern_matcher(root, "\\{(\\d+)(,)?(\\d+)?\\}");
 
                 regex_options op;
                 regex_options_init(&op);
@@ -148,6 +148,7 @@ char tokenize(regex* root, const char** pat) {
                 regex_match(pat, m_root, &op);
                 (*pat)--;  // パターン読み取りで過ぎるから一つ戻す
 
+                printf("%d\n", op.captured->length);
                 switch (op.captured->length) {
                     case 1: {
                         v = regex_capture_int(array_at(op.captured, 0));
@@ -155,7 +156,12 @@ char tokenize(regex* root, const char** pat) {
                     }
                     case 2: {
                         u = regex_capture_int(array_at(op.captured, 0));
-                        v = regex_capture_int(array_at(op.captured, 1));
+                        break;
+                    }
+                    case 3: {
+                        u = regex_capture_int(array_at(op.captured, 0));
+                        v = regex_capture_int(array_at(op.captured, 2));
+                        break;
                     }
                     default:
                         break;
