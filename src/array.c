@@ -127,6 +127,10 @@ array_element* array_last(array* _array) {
     return array_at(_array, _array->length - 1);
 }
 
+array_element* array_first(array* _array) {
+    return array_at(_array, 0);
+}
+
 /**
  * overwrite element
  * you need to **destruct** object pointed by overwritten ptr

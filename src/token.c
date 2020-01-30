@@ -166,7 +166,6 @@ char tokenize(regex* root, const char** pat) {
                     default:
                         break;
                 }
-                // printf("%d,%d\n", u, v);
                 regex_options_destruct(&op);
                 regex_destruct(m_root);
 

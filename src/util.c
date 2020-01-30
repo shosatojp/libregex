@@ -34,8 +34,8 @@ regex* next_sibling(regex* m0) {
         prev = m;
         m = m->mp;
         if (m->type == RT_SEQ && m->ms && m->ms->length > 1) {
-            array_each(m->ms,
-                       if (array_e == prev && array_i < m->ms->length - 1) {
+            array_each_i(m->ms,
+                       if (array_ei == prev && array_i < m->ms->length - 1) {
                            sibling = array_at(m->ms, array_i + 1);
                            break;
                        });
