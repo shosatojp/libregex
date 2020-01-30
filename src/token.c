@@ -13,7 +13,6 @@ char tokenize(regex* root, const char** pat) {
     char c = '\0';
 
     while (c = **pat) {
-        debug("%d,%c\n", count, c);
         switch (c) {
             case '+':
             case '*': {
@@ -147,7 +146,7 @@ char tokenize(regex* root, const char** pat) {
             }
             case '{': {
                 int u = -1, v = -1;
-                regex* m_root = make_pattern_matcher(root, "\\{(\\d+)(?,(\\d+))\\}");
+                regex* m_root = make_pattern_matcher(root, "\\{(\\d+)(:?,(\\d+))\\}");
 
                 regex_options op;
                 memset(&op, 0, sizeof(regex_options));

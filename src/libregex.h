@@ -18,8 +18,8 @@ typedef enum _regex_state regex_state;
 typedef enum _regex_type regex_type;
 
 enum _regex_state {
-    RS_MATCHED = 0,
-    RS_FAILED
+    RS_FAILED = -1,
+    RS_MATCHED = 0
 };
 
 enum _regex_type {
@@ -39,7 +39,7 @@ enum _regex_type {
     RT_TIMES
 };
 
-typedef regex_state (*consumer)(const char**, regex*, regex_options*);
+typedef int (*consumer)(const char**, regex*, regex_options*);
 
 struct _regex {
     regex_type type;
@@ -88,20 +88,27 @@ struct _regex_found {
 
 /* consume.c */
 regex_state toggle_match_state(regex_state state);
-regex_state consume_char(const char** ptr, regex* m, regex_options* op);
-regex_state consume_span(const char** ptr, regex* m, regex_options* op);
-regex_state consume_times(const char** ptr, regex* m, regex_options* op);
-regex_state consume_plus(const char** ptr, regex* m, regex_options* op);
-regex_state consume_plus_non_greedy(const char** ptr, regex* m, regex_options* op);
-regex_state consume_plus_greedy(const char** ptr, regex* m, regex_options* op);
-regex_state consume_or(const char** ptr, regex* m, regex_options* op);
-regex_state consume_nor(const char** ptr, regex* m, regex_options* op);
-regex_state consume_head(const char** ptr, regex* m, regex_options* op);
-regex_state consume_tail(const char** ptr, regex* m, regex_options* op);
-regex_state consume_any(const char** ptr, regex* m, regex_options* op);
-regex_state consume_seq(const char** ptr, regex* m, regex_options* op);
-regex_state regex_match(const char** ptr, regex* m, regex_options* op);
-regex_state consume_not(const char** ptr, regex* m, regex_options* op);
+int consume_char(const char** ptr, regex* m, regex_options* op);
+int consume_span(const char** ptr, regex* m, regex_options* op);
+int consume_times(const char** ptr, regex* m, regex_options* op);
+int consume_plus(const char** ptr, regex* m, regex_options* op);
+int consume_plus_non_greedy(const char** ptr, regex* m, regex_options* op);
+int consume_plus_greedy(const char** ptr, regex* m, regex_options* op);
+int consume_or(const char** ptr, regex* m, regex_options* op);
+int consume_nor(const char** ptr, regex* m, regex_options* op);
+int consume_head(const char** ptr, regex* m, regex_options* op);
+int consume_tail(const char** ptr, regex* m, regex_options* op);
+int consume_any(const char** ptr, regex* m, regex_options* op);
+int consume_seq(const char** ptr, regex* m, regex_options* op);
+int regex_match(const char** ptr, regex* m, regex_options* op);
+int consume_not(const char** ptr, regex* m, regex_options* op);
+
+/*
+-1 : FAILED
+0  : MATCHED 0 char
+
+
+*/
 
 /* make.c */
 regex* make_empty_matcher();
