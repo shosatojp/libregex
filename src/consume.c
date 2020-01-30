@@ -29,7 +29,22 @@ regex_state consume_span(const char** ptr, regex* m, regex_options* op) {
 }
 
 regex_state consume_times(const char** ptr, regex* m, regex_options* op) {
-    consumer_debug(m, "consume_times(%d, %d)", m->u, m->v);
+    return m->non_greedy
+               ? consume_plus_non_greedy(ptr, m, op)
+               : consume_plus_greedy(ptr, m, op);
+}
+
+regex_state consume_times_non_greedy(const char** ptr, regex* m, regex_options* op) {
+    consumer_debug(m, "consume_times_greedy(%d, %d)", m->u, m->v);
+
+    regex* next = next_sibling(m);
+
+    const char* init = *ptr;
+    regex* m0 = array_at(m->ms, 0);
+}
+
+regex_state consume_times_greedy(const char** ptr, regex* m, regex_options* op) {
+    consumer_debug(m, "consume_times_greedy(%d, %d)", m->u, m->v);
     int count = 0;
     while (count < m->v) {
         regex* m0 = array_at(m->ms, 0);
@@ -68,7 +83,11 @@ regex_state consume_plus_non_greedy(const char** ptr, regex* m, regex_options* o
 
     const char* init = *ptr;
     regex* m0 = array_at(m->ms, 0);
-    while (**ptr) {
+    int count = 0,
+        u = m->u,
+        v = m->v >= 0 ? m->v : (op->tail - op->head);
+    consumer_debug(m, "u = %d,v = %d\n", u, v);
+    while (**ptr && count < v) {
         const char* head = *ptr;
         const char* _ptr = *ptr;
         regex_state result = m0->fn(&_ptr, m0, op);
@@ -79,12 +98,30 @@ regex_state consume_plus_non_greedy(const char** ptr, regex* m, regex_options* o
                 break;
             } else {
                 *ptr = head + 1;
+                count++;
             }
         } else {
             break;
         }
     }
-    return (m->type != RT_PLUS || init != *ptr) ? RS_MATCHED : RS_FAILED;
+
+    switch (m->type) {
+        case RT_STAR:
+            return RS_MATCHED;
+            break;
+        case RT_PLUS:
+            return init != *ptr ? RS_MATCHED : RS_FAILED;
+            break;
+        case RT_TIMES:
+            if (u < 0) {
+                return count == v ? RS_MATCHED : RS_FAILED;
+            } else {
+                return (u <= count && count <= v) ? RS_MATCHED : RS_FAILED;
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 /* greedy */
@@ -94,35 +131,72 @@ regex_state consume_plus_greedy(const char** ptr, regex* m, regex_options* op) {
     regex* next = next_sibling(m);
 
     const char* init = *ptr;
-    *ptr = op->tail - 1;
     regex* m0 = array_at(m->ms, 0);
-    while (init < *ptr) {
-        const char* head = *ptr;
-        const char* _ptr = *ptr;
-        regex_state result = m0->fn(&_ptr, m0, op);
+
+    int count = 0,
+        u = m->u,
+        v = m->v >= 0 ? m->v : (op->tail - op->head);
+    consumer_debug(m, "u = %d,v = %d\n", u, v);
+
+    bool _no_capture = op->no_capture;
+    while (**ptr && count < v) {
+        consumer_debug(m, "**ptr = %c, %d\n", **ptr, **ptr);
+        regex_state result = m0->fn(ptr, m0, op);
         if (result == RS_MATCHED) {
-            if (next && next->fn(&_ptr, next, op) == RS_MATCHED) {
-                // 後ろから条件nextにマッチするまで
-                (*ptr)++;
-                break;
-            } else {
-                *ptr = head - 1;
-            }
+            // op->no_capture = true;
+            count++;
         } else {
             break;
         }
+        printf("captured = %d\n", op->captured->length);
     }
-    return (m->type != RT_PLUS || init != *ptr) ? RS_MATCHED : RS_FAILED;
+    // op->no_capture = _no_capture;
+
+    consumer_debug(m, "**ptr = %c, %d\n", **ptr, **ptr);
+    consumer_debug(m, "count = %d\n", count);
+    fflush(stdout);
+
+    while (init < *ptr) {
+        consumer_debug(m, "**ptr = %c, %d\n", **ptr, **ptr);
+
+        const char* head = *ptr;
+        const char* _ptr = *ptr;
+        if (next && next->fn(&_ptr, next, op) == RS_MATCHED) {
+            // 後ろから条件nextにマッチするまで
+            *ptr = head;
+            break;
+        } else {
+            *ptr = head - 1;
+        }
+    }
+
+    switch (m->type) {
+        case RT_STAR:
+            return RS_MATCHED;
+            break;
+        case RT_PLUS:
+            return init != *ptr ? RS_MATCHED : RS_FAILED;
+            break;
+        case RT_TIMES:
+            if (u < 0) {
+                return count == v ? RS_MATCHED : RS_FAILED;
+            } else {
+                return (u <= count && count <= v) ? RS_MATCHED : RS_FAILED;
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 regex_state consume_or(const char** ptr, regex* m, regex_options* op) {
-    consumer_debug(m, "consumer_or()");
+    consumer_debug(m, "consumer_or(m->no_capture:%d, op->no_capture:%d)", m->no_capture, op->no_capture);
     const char* init = *ptr;
     for (int i = 0; i < m->ms->length; i++) {
         *ptr = init;
         regex* mi = array_at(m->ms, i);
         if (mi->fn(ptr, mi, op) == RS_MATCHED) {
-            if (m->type == RT_OR && !m->noregex_capture) {
+            if (m->type == RT_OR && !m->no_capture && !op->no_capture) {
                 array_push(op->captured, regex_capture_new(init, *ptr - 1));
             }
             return RS_MATCHED;

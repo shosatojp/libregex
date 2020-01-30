@@ -56,7 +56,7 @@ struct _regex {
     bool multi_line;
     bool dot_all;
     bool non_greedy;
-    bool noregex_capture;
+    bool no_capture;
 
     /* parent */
     regex* mp;
@@ -71,6 +71,7 @@ struct _regex_options {
     const char* head;
     const char* tail;
     array* captured;
+    bool no_capture;
 };
 
 /* regex_capture result struct */

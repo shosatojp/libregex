@@ -7,19 +7,22 @@
 
 int main(int argc, char* argv[]) {
     /* 文字列 */
-    const char *str = argc > 1 ? argv[1] : "<a> <b>",
+    const char *str = argc > 1 ? argv[1] : "1,",
                *ptr = str;
 
     /* 正規表現 */
-    regex* _regex = regex_compile(argc > 2 ? argv[2] : "<.+?>", "ims");
+    regex* _regex = regex_compile(argc > 2
+                                      ? argv[2]
+                                      : "\\d+?",
+                                  "im");
 
     /* findall */
-    regex_found f;
-    regex_found_init(&f);
-    regex_find_all(&ptr, _regex, &f);
-    array_each(f.results,
-               printf("%s\n", (const char*)array_e));
-    exit(0);
+    // regex_found f;
+    // regex_found_init(&f);
+    // regex_find_all(&ptr, _regex, &f);
+    // array_each(f.results,
+    //            printf("%s\n", (const char*)array_e));
+    // exit(0);
 
     /* init */
     ptr = str;

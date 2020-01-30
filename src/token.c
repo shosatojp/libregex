@@ -127,12 +127,17 @@ char tokenize(regex* root, const char** pat) {
                 }
             }
             case '?': {
-                if (root->mp->type == RT_OR && *(*pat + 1) == ':') {
+                if (root->mp && root->mp->type == RT_OR && *(*pat + 1) == ':') {
                     (*pat)++;
-                    root->mp->noregex_capture = true;
+                    root->mp->no_capture = true;
                 } else {
                     regex* m0 = array_at(root->ms, count - 1);
                     regex* m = make_consume_times_matcher(root, 0, 1, m0);
+
+                    if (*(*pat + 1) == '?') {
+                        m->non_greedy = true;
+                        (*pat)++;
+                    }
 
                     array_del(root->ms, root->ms->length - 1);
                     array_push(root->ms, m);
@@ -167,6 +172,11 @@ char tokenize(regex* root, const char** pat) {
 
                 regex* m0 = array_at(root->ms, count - 1);
                 regex* m = make_consume_times_matcher(root, u, v, m0);
+
+                if (*(*pat + 1) == '?') {
+                    m->non_greedy = true;
+                    (*pat)++;
+                }
 
                 array_del(root->ms, root->ms->length - 1);
                 array_push(root->ms, m);

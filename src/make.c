@@ -132,6 +132,8 @@ regex* make_consume_plus_matcher(regex* mp, char c, regex* m0) {
     m->c = c;
     m->ms = array_new(sizeof(void*), true, 4);
     m->mp = mp;
+    m->u = 1;
+    m->v = -1;
     array_push(m->ms, m0);
     return m;
 }
@@ -143,6 +145,8 @@ regex* make_consume_star_matcher(regex* mp, char c, regex* m0) {
     m->c = c;
     m->ms = array_new(sizeof(void*), true, 4);
     m->mp = mp;
+    m->u = 0;
+    m->v = -1;
     array_push(m->ms, m0);
     return m;
 }

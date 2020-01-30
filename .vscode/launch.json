@@ -5,7 +5,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/libregex",
+            "program": "${workspaceFolder}/src/libregex",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
