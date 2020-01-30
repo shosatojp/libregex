@@ -5,16 +5,15 @@
 #include "array.h"
 #include "libregex.h"
 
-
 int main(int argc, char* argv[]) {
     /* 文字列 */
-    const char *str = argc > 1 ? argv[1] : "{1,2}",
+    const char *str = argc > 1 ? argv[1] : "{ 23,   }",
                *ptr = str;
 
     /* 正規表現 */
     regex* _regex = regex_compile(argc > 2
                                       ? argv[2]
-                                      : "\\{(\\d+)(:?,(\\d+))?\\}",
+                                      : "\\{\\s*([\\d]+)\\s*,?(?:\\s*(\\d+)?\\s*)?\\}",
                                   "im");
 
     /* findall */

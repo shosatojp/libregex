@@ -9,14 +9,13 @@
 char tokenize(regex* root, const char** pat) {
     root->ms = array_new(sizeof(void*), true, 8);
 
-    int count = 0;
     char c = '\0';
 
     while (c = **pat) {
         switch (c) {
             case '+':
             case '*': {
-                regex* m0 = array_at(root->ms, count - 1);
+                regex* m0 = array_last(root->ms);
                 regex* m;
                 switch (c) {
                     case '+':
@@ -31,23 +30,21 @@ char tokenize(regex* root, const char** pat) {
                     m->non_greedy = true;
                     (*pat)++;
                 }
-                array_del(root->ms, root->ms->length - 1);
+
+                array_pop(root->ms);
                 array_push(root->ms, m);
                 break;
             }
             case '.': {
                 array_push(root->ms, make_consume_any_matcher(root));
-                count++;
                 break;
             }
             case '^': {
                 array_push(root->ms, make_consume_head_matcher(root));
-                count++;
                 break;
             }
             case '$': {
                 array_push(root->ms, make_consume_tail_matcher(root));
-                count++;
                 break;
             }
             case '(': {
@@ -70,7 +67,6 @@ char tokenize(regex* root, const char** pat) {
                     array_push(mor->ms, mtmp);
                 }
                 array_push(root->ms, mor);
-                count++;
                 break;
             }
             case ')': {
@@ -115,7 +111,6 @@ char tokenize(regex* root, const char** pat) {
                     array_push(manyof->ms, mtmp);
                 }
                 array_push(root->ms, manyof);
-                count++;
                 break;
             }
             case ']': {
@@ -130,7 +125,7 @@ char tokenize(regex* root, const char** pat) {
                     (*pat)++;
                     root->mp->no_capture = true;
                 } else {
-                    regex* m0 = array_at(root->ms, count - 1);
+                    regex* m0 = array_last(root->ms);
                     regex* m = make_consume_times_matcher(root, 0, 1, m0);
 
                     if (*(*pat + 1) == '?') {
@@ -138,9 +133,8 @@ char tokenize(regex* root, const char** pat) {
                         (*pat)++;
                     }
 
-                    array_del(root->ms, root->ms->length - 1);
+                    array_pop(root->ms);
                     array_push(root->ms, m);
-                    count++;
                 }
                 break;
             }
@@ -169,7 +163,7 @@ char tokenize(regex* root, const char** pat) {
                 regex_options_destruct(&op);
                 regex_destruct(m_root);
 
-                regex* m0 = array_at(root->ms, count - 1);
+                regex* m0 = array_last(root->ms);
                 regex* m = make_consume_times_matcher(root, u, v, m0);
 
                 if (*(*pat + 1) == '?') {
@@ -177,9 +171,8 @@ char tokenize(regex* root, const char** pat) {
                     (*pat)++;
                 }
 
-                array_del(root->ms, root->ms->length - 1);
+                array_pop(root->ms);
                 array_push(root->ms, m);
-                count++;
                 break;
             }
             case '\\': {
@@ -187,47 +180,36 @@ char tokenize(regex* root, const char** pat) {
                 switch (**pat) {
                     case 't':
                         array_push(root->ms, make_consume_char_matcher(root, '\t'));
-                        count++;
                         break;
                     case 'r':
                         array_push(root->ms, make_consume_char_matcher(root, '\r'));
-                        count++;
                         break;
                     case 'n':
                         array_push(root->ms, make_consume_char_matcher(root, '\n'));
-                        count++;
                         break;
                     case 'f':
                         array_push(root->ms, make_consume_char_matcher(root, '\f'));
-                        count++;
                         break;
                     case 'd':
                         array_push(root->ms, make_pattern_matcher(root, "[0-9]"));
-                        count++;
                         break;
                     case 'D':
                         array_push(root->ms, make_pattern_matcher(root, "[^0-9]"));
-                        count++;
                         break;
                     case 's':
                         array_push(root->ms, make_pattern_matcher(root, "[ \\t\\f\\r\\n]"));
-                        count++;
                         break;
                     case 'S':
                         array_push(root->ms, make_pattern_matcher(root, "[^ \\t\\f\\r\\n]"));
-                        count++;
                         break;
                     case 'w':
                         array_push(root->ms, make_pattern_matcher(root, "[a-zA-Z_0-9]"));
-                        count++;
                         break;
                     case 'W':
                         array_push(root->ms, make_pattern_matcher(root, "[^a-zA-Z_0-9]"));
-                        count++;
                         break;
                     default:
                         array_push(root->ms, make_consume_char_matcher(root, **pat));
-                        count++;
                         break;
                 }
                 break;
@@ -237,20 +219,14 @@ char tokenize(regex* root, const char** pat) {
                     regex* m = make_consume_span_matcher(root, *(*pat - 1), *(*pat + 1));
                     (*pat)++;
 
-                    regex* del = array_del(root->mp->ms, root->mp->ms->length - 1);
-                    if (del) {
-                        regex_destruct(del);
-                    }
-
+                    regex_destruct(array_pop(root->mp->ms));
                     array_push(root->ms, m);
-                    count++;
                     break;
                 }
                 // nobreak
             }
             default: {
                 array_push(root->ms, make_consume_char_matcher(root, c));
-                count++;
                 break;
             }
         }
@@ -262,7 +238,7 @@ char tokenize(regex* root, const char** pat) {
 }
 
 int regex_destruct(regex* root) {
-    if (root->ms) {
+    if (root && root->ms) {
         for (int i = 0; i < root->ms->length; i++) {
             regex* m = array_at(root->ms, i);
             regex_destruct(m);

@@ -1,7 +1,7 @@
 #pragma once
 #include <stdarg.h>
 #include <stdbool.h>
-#define DEBUG
+// #define DEBUG
 
 struct _regex;
 struct _regex_options;
@@ -42,6 +42,7 @@ enum _regex_type {
 typedef int (*consumer)(const char**, regex*, regex_options*);
 
 struct _regex {
+    int id;
     regex_type type;
 
     /* consumer function */
@@ -101,13 +102,11 @@ int consume_tail(const char** ptr, regex* m, regex_options* op);
 int consume_any(const char** ptr, regex* m, regex_options* op);
 int consume_seq(const char** ptr, regex* m, regex_options* op);
 int regex_match(const char** ptr, regex* m, regex_options* op);
-int consume_not(const char** ptr, regex* m, regex_options* op);
+// int consume_not(const char** ptr, regex* m, regex_options* op);
 
 /*
 -1 : FAILED
 0  : MATCHED 0 char
-
-
 */
 
 /* make.c */
@@ -117,7 +116,7 @@ regex* make_consume_head_matcher(regex* mp);
 regex* make_consume_tail_matcher(regex* mp);
 regex* make_consume_times_matcher(regex* mp, int u, int v, regex* m0);
 regex* make_consume_span_matcher(regex* mp, char c, char c2);
-regex* make_consume_not_matcher(regex* mp, regex* m0);
+// regex* make_consume_not_matcher(regex* mp, regex* m0);
 regex* make_consume_or_matcher(regex* mp);
 regex* make_consume_anyof_matcher(regex* mp);
 regex* make_consume_nonof_matcher(regex* mp);
@@ -148,6 +147,7 @@ char lower_case(char c);
 bool is_upper_case(char c);
 bool is_lower_case(char c);
 regex* next_sibling(regex* m0);
+void put_regex_type(regex_type rt);
 
 /* options.c */
 regex_options* regex_options_new();

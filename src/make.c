@@ -20,8 +20,15 @@ regex* make_pattern_matcher(regex* mp, const char* pat) {
     return m;
 }
 
+int matcher_count = 0;
+
 regex* make_empty_matcher() {
-    return (regex*)calloc(sizeof(regex), 1);
+    regex* m = (regex*)calloc(sizeof(regex), 1);
+    m->id = matcher_count++;
+    if (m->id == 78) {
+        m->id;
+    }
+    return m;
 }
 
 regex* make_consume_char_matcher(regex* mp, char c) {
@@ -71,15 +78,15 @@ regex* make_consume_span_matcher(regex* mp, char c, char c2) {
     return m;
 }
 
-regex* make_consume_not_matcher(regex* mp, regex* m0) {
-    regex* m = make_empty_matcher();
-    m->type = RT_NOT;
-    m->fn = consume_not;
-    m->ms = array_new(sizeof(void*), true, 4);
-    m->mp = mp;
-    array_push(m->ms, m0);
-    return m;
-}
+// regex* make_consume_not_matcher(regex* mp, regex* m0) {
+//     regex* m = make_empty_matcher();
+//     m->type = RT_NOT;
+//     m->fn = consume_not;
+//     m->ms = array_new(sizeof(void*), true, 4);
+//     m->mp = mp;
+//     array_push(m->ms, m0);
+//     return m;
+// }
 
 regex* make_consume_or_matcher(regex* mp) {
     regex* m = make_empty_matcher();
