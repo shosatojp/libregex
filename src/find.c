@@ -10,18 +10,28 @@ int regex_find_all(const char** ptr, regex* m, regex_found* f) {
     const char* head = *ptr;
     regex_options op;
     while (**ptr) {
+        // printf("ptr  ==== %c\n", **ptr);
         regex_options_init(&op);
         const char* init = *ptr;
         op.head = head;
-        switch (regex_match(ptr, m, &op)) {
-            case RS_MATCHED: {
+        int matched_len = regex_match(ptr, m, &op);
+        // printf("matched_len = %d\n", matched_len);
+        switch (matched_len) {
+            case -1:
+                *ptr = init + 1;
+                break;
+            case 0: {
+                char* str = (char*)strcut(init, *ptr - 1);
+                array_push(f->results, str);
+                (*ptr)++;
+                // printf("0 len match.\n");
+                break;
+            }
+            default: {
                 char* str = (char*)strcut(init, *ptr - 1);
                 array_push(f->results, str);
                 break;
             }
-            case RS_FAILED:
-                *ptr = init + 1;
-                break;
         }
         regex_options_destruct(&op);
     }

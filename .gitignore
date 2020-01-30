@@ -25,3 +25,5 @@ missing
 
 Makefile
 libregex
+
+*.py

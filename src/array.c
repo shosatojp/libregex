@@ -88,6 +88,13 @@ array_element* array_del(array* _array, int index) {
 }
 
 /**
+ * you need to **destruct** object pointed by poped ptr
+ */
+array_element* array_pop(array* _array) {
+    return array_del(_array, _array->length - 1);
+}
+
+/**
  * empty array
  * you need to **destruct** object pointed by ptrs
  */
@@ -114,6 +121,10 @@ void* array_at(array* _array, int index) {
     int bytes = _array->isptr ? 1 : _array->elem_size;
     void** ptr = _array->data + (index * bytes);
     return _array->isptr ? *ptr : ptr;
+}
+
+array_element* array_last(array* _array) {
+    return array_at(_array, _array->length - 1);
 }
 
 /**

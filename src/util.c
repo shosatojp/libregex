@@ -44,3 +44,21 @@ regex* next_sibling(regex* m0) {
     }
     return sibling;
 }
+
+void put_regex_type(regex_type rt) {
+    const char* labels[] = {"RT_SPAN",
+                            "RT_CHAR",
+                            "RT_PLUS",
+                            "RT_STAR",
+                            "RT_NOT",
+                            "RT_OR",
+                            "RT_ROOT",
+                            "RT_ANY",
+                            "RT_NONOF"
+                            "RT_ANYOF"
+                            "RT_HEAD",
+                            "RT_TAIL",
+                            "RT_SEQ",
+                            "RT_TIMES"};
+    printf("%s", labels[rt]);
+}
