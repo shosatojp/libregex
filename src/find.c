@@ -10,7 +10,6 @@ int regex_find_all(const char** ptr, regex* m, regex_found* f) {
     const char* head = *ptr;
     regex_options op;
     while (**ptr) {
-        // printf("ptr  ==== %c\n", **ptr);
         regex_options_init(&op);
         const char* init = *ptr;
         op.head = head;
