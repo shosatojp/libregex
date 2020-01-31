@@ -7,14 +7,16 @@
 
 int main(int argc, char* argv[]) {
     /* 文字列 */
-    const char *str = argc > 1 ? argv[1] : "233",
+    const char *str = argc > 1 ? argv[1] : "Aa",
                *ptr = str;
 
     /* 正規表現 */
     regex* _regex = regex_compile(argc > 2
                                       ? argv[2]
-                                      : "(\\d{2,})",
-                                  "im");
+                                      : "A",
+                                  argc > 3
+                                      ? argv[3]
+                                      : "im");
 
     /* findall */
     printf("----------- find_all --------\n");
@@ -27,7 +29,7 @@ int main(int argc, char* argv[]) {
     /* init */
     ptr = str;
 
-    printf("----------- capture --------\n");
+    printf("----------- full match --------\n");
     regex_options op;
     regex_options_init(&op);
 
