@@ -10,3 +10,4 @@ clean: distclean
 	-rm conf/*
 	-rm -r conf
 	-rm config.h.in~
+	-rm src/libregex src/libregextest

@@ -13,6 +13,7 @@
 
 compile
 config.h
+config.h.in~
 *.in
 configure
 *.status
@@ -25,5 +26,6 @@ missing
 
 Makefile
 libregex
+libregextest
 
 *.py
