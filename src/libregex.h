@@ -53,11 +53,13 @@ struct _regex {
     char c2;
     char* matched_c;
     int u, v;
+    bool non_greedy;
+    bool no_capture;
+
+    /* flags */
     bool ignore_case;
     bool multi_line;
     bool dot_all;
-    bool non_greedy;
-    bool no_capture;
 
     /* parent */
     regex* mp;
@@ -148,6 +150,9 @@ bool is_upper_case(char c);
 bool is_lower_case(char c);
 regex* next_sibling(regex* m0);
 void put_regex_type(regex_type rt);
+void dump_memory(void* __ptr, int __n);
+void copy_constants(regex* m);
+
 
 /* options.c */
 regex_options* regex_options_new();

@@ -10,6 +10,7 @@ regex* regex_compile(const char* pat, const char* flags) {
     if (strchr(flags, 'i')) m->ignore_case = true;
     if (strchr(flags, 'm')) m->multi_line = true;
     if (strchr(flags, 's')) m->dot_all = true;
+    copy_constants(m);
     return m;
 }
 

@@ -35,10 +35,10 @@ regex* next_sibling(regex* m0) {
         m = m->mp;
         if (m->type == RT_SEQ && m->ms && m->ms->length > 1) {
             array_each_i(m->ms,
-                       if (array_ei == prev && array_i < m->ms->length - 1) {
-                           sibling = array_at(m->ms, array_i + 1);
-                           break;
-                       });
+                         if (array_ei == prev && array_i < m->ms->length - 1) {
+                             sibling = array_at(m->ms, array_i + 1);
+                             break;
+                         });
             if (sibling) break;
         }
     }
@@ -61,4 +61,45 @@ void put_regex_type(regex_type rt) {
                             "RT_SEQ",
                             "RT_TIMES"};
     printf("%s", labels[rt]);
+}
+
+void dump_memory(void* __ptr, int __n) {
+    int width = 16;
+
+    printf("                ");
+    for (int i = 0; i < width; i++) printf("%2d ", i);
+    printf("\n---------------");
+    for (int i = 0; i < width; i++) printf("---");
+    printf("\n");
+
+    char* string = (char*)calloc(sizeof(char), width);
+    int count = 0;
+    while (count < __n) {
+        void* fp = __ptr;
+        printf("%p  ", fp);
+        for (int i = 0; i < width; i++) {
+            if (count++ < __n) {
+                printf("%02x ", *((unsigned char*)__ptr + i));
+                char c = *((unsigned char*)__ptr + i);
+                sprintf((char*)string + (i % width), "%c", (31 < c && c < 126) ? c : '.');
+            } else {
+                printf("   ");
+            }
+        }
+        __ptr = (char*)__ptr + width;
+        printf("|%-16s|", string);
+        memset(string, 0, width);
+        printf("\n");
+    }
+    free(string);
+}
+
+void copy_constants(regex* m) {
+    if (m->ms) {
+        array_each_i(m->ms,
+                     ((regex*)array_ei)->ignore_case = m->ignore_case;
+                     ((regex*)array_ei)->multi_line = m->multi_line;
+                     ((regex*)array_ei)->dot_all = m->dot_all;
+                     copy_constants(array_ei);)
+    }
 }
