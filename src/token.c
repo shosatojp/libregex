@@ -148,7 +148,6 @@ char tokenize(regex* root, const char** pat) {
                 regex_match(pat, m_root, &op);
                 (*pat)--;  // パターン読み取りで過ぎるから一つ戻す
 
-                printf("%d\n", op.captured->length);
                 switch (op.captured->length) {
                     case 1: {
                         v = regex_capture_int(array_at(op.captured, 0));
