@@ -21,20 +21,28 @@ regex_state regex_match_simple(const char* pat, const char* flag, const char* st
         _regex_test_count_error = 0;
 
 #define REGEX_TEST_FAIL(PAT, FLAG, STR)                            \
-    if (regex_match_simple((#PAT), (#FLAG), (#STR)) != (RS_FAILED)) { \
+    if (regex_match_simple((PAT), (FLAG), (STR)) != (RS_FAILED)) { \
         _regex_test_count_error++;                                 \
-        printf("ERROR(FAIL) : %s %s %s\n", (#PAT), (#FLAG), (#STR));  \
+        printf(                                                    \
+            "ERROR(FAIL) : %s %s %s\n",                            \
+            (PAT), (FLAG), (STR));                                 \
     } else {                                                       \
         _regex_test_count_ok++;                                    \
-        printf("OK          : %s %s\n", #PAT, #FLAG);                \
+        printf(                                                    \
+            "OK : %s %s\n",                                        \
+            PAT, FLAG);                                            \
     }
 #define REGEX_TEST(PAT, FLAG, STR)                                 \
-    if (regex_match_simple((#PAT), (#FLAG), (#STR)) == (RS_FAILED)) { \
+    if (regex_match_simple((PAT), (FLAG), (STR)) == (RS_FAILED)) { \
         _regex_test_count_error++;                                 \
-        printf("ERROR       : %s %s %s\n", (#PAT), (#FLAG), (#STR));  \
+        printf(                                                    \
+            "ERROR : %s %s %s\n",                                  \
+            (PAT), (FLAG), (STR));                                 \
     } else {                                                       \
         _regex_test_count_ok++;                                    \
-        printf("OK          : %s %s\n", #PAT, #FLAG);                \
+        printf(                                                    \
+            "OK : %s %s\n",                                        \
+            PAT, FLAG);                                            \
     }
 #define REGEX_TEST_END                                   \
     printf("---------------------\n");                   \
@@ -46,27 +54,45 @@ regex_state regex_match_simple(const char* pat, const char* flag, const char* st
 
 void test() {
     REGEX_TEST_BEGIN
-    REGEX_TEST(a, , a)
-    REGEX_TEST(1, , 1)
-    REGEX_TEST_FAIL(1, , a)
-    REGEX_TEST(\\d, , 3)
-    REGEX_TEST(\\\\, , \\)
-    REGEX_TEST(\\w+, , hello)
-    REGEX_TEST(\\w+, , hello!)
-    REGEX_TEST(^\\w, , hoge10)
-    REGEX_TEST(^\\w, , 10hoge)
-    REGEX_TEST(\\w+$, , 10hoge)
-    REGEX_TEST(\\w+$, , hoge10)
+    REGEX_TEST("a", "", "a")
+    REGEX_TEST("1", "", "1")
+    REGEX_TEST_FAIL("1", "", "a")
+    REGEX_TEST("\\d", "", "3")
+    REGEX_TEST("\\\\", "", "\\")
+    REGEX_TEST("\\w+", "", "hello")
+    REGEX_TEST("\\w+", "", "hello!")
+    REGEX_TEST("^\\w", "", "hoge10")
+    REGEX_TEST("^\\w", "", "10hoge")
+    REGEX_TEST("\\w+$", "", "10hoge")
+    REGEX_TEST("\\w+$", "", "hoge10")
 
-    REGEX_TEST(\\d+, , 123)
-    REGEX_TEST((\\d+), , 123)
-    REGEX_TEST((\\d+)?, , )
-    REGEX_TEST((\\d+)?, , 123)
-    REGEX_TEST_FAIL(^(\\d+)?, , a123)
-    REGEX_TEST_FAIL((\\d+)?$, , 123)
+    REGEX_TEST("[0-9]", "", "3")
+    REGEX_TEST("[^0-9]", "", "a")
+
+    REGEX_TEST_FAIL("\\d{3,5}", "", "34")
+    REGEX_TEST("\\d{3,5}", "", "345")
+
+    REGEX_TEST("\\d+", "", "123")
+    REGEX_TEST("(\\d+)", "", "123")
+    REGEX_TEST("(\\d+)?", "", "")
+    REGEX_TEST("(\\d+)?", "", "123")
+    REGEX_TEST_FAIL("^(\\d+)?", "", "a123")
+    REGEX_TEST_FAIL("(\\d+)?$", "", "123")
     REGEX_TEST_END
 }
 
 int main() {
-    test();
+    array* kuno = array_new(sizeof(int), false, 3);
+    printf("%d %d %d\n", kuno->elem_size, kuno->length, kuno->capacity);
+    int a = 1;
+    array_push(kuno, &a);
+    a = 2;
+    array_push(kuno, &a);
+    a = 3;
+    array_push(kuno, &a);
+
+    array_del(kuno, 1);
+    for (int i = 0; i < kuno->length; i++) {
+        printf("%d\n", array_at(kuno, i));
+    }
 }

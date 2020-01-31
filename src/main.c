@@ -13,10 +13,11 @@ int main(int argc, char* argv[]) {
     /* 正規表現 */
     regex* _regex = regex_compile(argc > 2
                                       ? argv[2]
-                                      : "(\\d{2,}?)",
+                                      : "(\\d{2,})",
                                   "im");
 
     /* findall */
+    printf("----------- find_all --------\n");
     regex_found f;
     regex_found_init(&f);
     regex_find_all(&ptr, _regex, &f);
@@ -26,6 +27,7 @@ int main(int argc, char* argv[]) {
     /* init */
     ptr = str;
 
+    printf("----------- capture --------\n");
     regex_options op;
     regex_options_init(&op);
 
