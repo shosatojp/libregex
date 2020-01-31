@@ -81,18 +81,88 @@ void test() {
     REGEX_TEST_END
 }
 
-int main() {
-    array* kuno = array_new(sizeof(int), false, 3);
-    printf("%d %d %d\n", kuno->elem_size, kuno->length, kuno->capacity);
-    int a = 1;
-    array_push(kuno, &a);
-    a = 2;
-    array_push(kuno, &a);
-    a = 3;
-    array_push(kuno, &a);
+void dump_memory(void* __ptr, int __n) {
+    int width = 16;
+    printf("                ");
+    for (int i = 0; i < width; i++) printf("%2d ", i);
+    printf("\n---------------");
+    for (int i = 0; i < width; i++) printf("---");
+    printf("\n");
+    char* string = (char*)calloc(sizeof(char), width);
+    int count = 0;
+    while (count < __n) {
+        void* fp = __ptr;
+        printf("%p  ", fp);
+        for (int i = 0; i < width; i++) {
+            printf("%02x ", *((unsigned char*)__ptr + i));
+        }
+        for (int i = 0; i < width; i++) {
+            char c = *((unsigned char*)__ptr + i);
+            sprintf(string + (count % width), "%c", (31 < c && c < 126) ? c : '.');
+        }
+        __ptr = (char*)__ptr + width;
+        count += width;
+        printf(string);
+        memset(string, 0, width);
+        printf("\n");
+    }
+}
 
-    array_del(kuno, 1);
-    for (int i = 0; i < kuno->length; i++) {
-        printf("%d\n", array_at(kuno, i));
+// void dump_memory(void* __ptr, int __n) {
+//     int width = 16;
+
+//     printf("                ");
+//     for (int i = 0; i < width; i++) printf("%2d ", i);
+//     printf("\n---------------");
+//     for (int i = 0; i < width; i++) printf("---");
+//     printf("\n");
+
+//     char* memory = (char*)calloc(sizeof(char), width * 3);
+//     char* string = (char*)calloc(sizeof(char), width);
+//     int count = 0;
+//     char* fp = __ptr;
+//     while (count++ < __n) {
+//         int i = count % width;
+//         sprintf(memory + i, "%02x", *((unsigned char*)__ptr + i));
+//         char c = *((unsigned char*)__ptr + i);
+//         sprintf(string + i, "%c", (31 < c && c < 126) ?: '.');
+//         if (count && (i == 0)) {
+//             printf("%p  %s %s\n", fp, memory, string);
+//             memset(memory, 0, width * 3);
+//             memset(string, 0, width);
+//             fp += width;
+//         }
+//     }
+//     if (count % width)
+//         printf("%p  %s %s\n", fp, memory, string);
+
+//     free(memory);
+//     free(string);
+// }
+
+int main() {
+    {
+        // 実体
+        array* _array = array_new(sizeof(int), false, 1);
+        int a = 1;
+        array_push(_array, &a);
+        a = 2;
+        array_push(_array, &a);
+        a = 3;
+        array_push(_array, &a);
+        array_del(_array, 1);
+        array_each_i(_array, printf("%d\n", *(int*)array_ei));
+    }
+    {
+        // ポインタ
+        array* _array = array_new(sizeof(int*), true, 1);
+        int a = 1;
+        array_push(_array, &a);
+        int b = 2;
+        array_push(_array, &b);
+        int c = 3;
+        array_push(_array, &c);
+        array_del(_array, 1);
+        array_each_i(_array, printf("%d\n", *(int*)array_ei));
     }
 }

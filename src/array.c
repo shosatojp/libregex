@@ -57,11 +57,10 @@ int array_ins(array* _array, void* e, int index) {
         _array_debug("failed to expand.\n");
         return -1;
     } else {
-        int bytes = _array->isptr ? 1 : _array->elem_size;
-        memmove((void*)_array->data + (index + 1) * bytes,
-                (void*)_array->data + index * bytes,
-                (_array->length - index) * bytes);
-        memcpy((void*)_array->data + (index * bytes),
+        memmove((char*)_array->data + (index + 1) * _array->elem_size,
+                (char*)_array->data + index * _array->elem_size,
+                (_array->length - index) * _array->elem_size);
+        memcpy((char*)_array->data + (index * _array->elem_size),
                _array->isptr ? &e : e, _array->elem_size);
         _array->length++;
         return 0;
@@ -76,12 +75,11 @@ array_element* array_del(array* _array, int index) {
         _array_debug("index out of range.\n");
         return NULL;
     } else {
-        int bytes = _array->isptr ? 1 : _array->elem_size;
-        void** head = (void*)_array->data + (index * bytes);
+        void** head = (void**)((char*)_array->data + (index * _array->elem_size));
         array_element* ptr = _array->isptr ? *head : NULL;
-        memmove(head, head + bytes,
-                (_array->length - index - 1) * bytes);
-        memset((void*)_array->data + (_array->length - 1) * bytes, 0, 1);
+        memmove(head, (char*)head + _array->elem_size,
+                (_array->length - index - 1) * _array->elem_size);
+        memset((char*)_array->data + (_array->length - 1) * _array->elem_size, 0, _array->elem_size);
         _array->length--;
         return ptr;
     }
@@ -118,8 +116,7 @@ int array_clear(array* _array) {
 }
 
 void* array_at(array* _array, int index) {
-    int bytes = _array->isptr ? 1 : _array->elem_size;
-    void** ptr = (void*)_array->data + (index * bytes);
+    void** ptr = (void*)((char*)_array->data + (index * _array->elem_size));
     return _array->isptr ? *ptr : ptr;
 }
 
@@ -137,10 +134,10 @@ array_element* array_first(array* _array) {
  */
 array_element* array_set(array* _array, array_element* e, int index) {
     if (-1 < index && index < _array->length) {
-        int bytes = _array->isptr ? 1 : _array->elem_size;
-        void** ptr = (void*)_array->data + (index * bytes);
+        void** ptr = (void*)((char*)_array->data + (index * _array->elem_size));
         array_element* p = _array->isptr ? *ptr : NULL;
-        memcpy((void*)_array->data + (index * bytes), _array->isptr ? &e : e, bytes);
+        memcpy((char*)_array->data + (index * _array->elem_size),
+               _array->isptr ? &e : e, _array->elem_size);
         return p;
     } else {
         _array_debug("index out of range.\n");
