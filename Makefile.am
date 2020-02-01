@@ -5,7 +5,7 @@ clean: distclean
 	-rm autom4te.cache/*
 	-rm -r autom4te.cache
 	-rm *.tar.gz
-	-find . -name "*.in" -delete
+	-find . -name "*.in" -or -name "*.trs" -or -name "*.log" -delete
 	-rm configure
 	-rm conf/*
 	-rm -r conf

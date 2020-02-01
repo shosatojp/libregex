@@ -23,6 +23,7 @@ INSTALL
 install-sh
 missing
 *.m4
+*.trs
 
 Makefile
 libregex
