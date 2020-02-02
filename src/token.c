@@ -14,7 +14,6 @@ char tokenize(regex* root, const char** pat) {
     while (c = **pat) {
         if (root->mp && (root->mp->type == RT_ANYOF || root->mp->type == RT_NONOF) &&
             strchr("+*.^$(|)[{}?", **pat)) {
-            // []の中ではエスケープ無しで使える
             array_push(root->ms, make_consume_char_matcher(root, **pat));
         } else {
             switch (c) {
@@ -151,7 +150,7 @@ char tokenize(regex* root, const char** pat) {
                     regex_options_init(&op);
 
                     regex_match(pat, m_root, &op);
-                    (*pat)--;  // パターン読み取りで過ぎるから一つ戻す
+                    (*pat)--;
 
                     switch (op.captured->length) {
                         case 1: {

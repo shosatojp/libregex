@@ -24,7 +24,6 @@ int main(int argc, char* argv[]) {
     regex_found_init(&f);
     regex_find_all(&ptr, _regex, &f);
     array_each_i(f.results, printf("'%s'\n", (const char*)array_ei));
-    // exit(0);
 
     /* init */
     ptr = str;
