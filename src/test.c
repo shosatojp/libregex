@@ -41,7 +41,7 @@ void test() {
 
 int main() {
     test();
-    REGEX_TEST_FIND_ALL("([\\w\\.\\-]+)@([\\w\\.\\-]+)", "", "<a href=\"mailto:hoge@example.com\">Send Mail</a>", "hoge@example.com")
+    REGEX_TEST_FIND_ALL("([\\w.-]+)@([\\w.-]+)", "", "<a href=\"mailto:hoge@example.com\">Send Mail</a>", "hoge@example.com")
     REGEX_TEST_FIND_ALL("0x[\\dA-F]{2}", "", "hoge0x340x12 hige0x5678", "0x34", "0x12", "0x56")
     REGEX_TEST_FIND_ALL("<.*>", "i", "<H1>hoge</h1>", "<H1>hoge</h1>")
     REGEX_TEST_FIND_ALL("<.*?>", "i", "<H1>hoge</h1>", "<H1>", "</h1>")
@@ -54,7 +54,7 @@ int main() {
 
     REGEX_TEST_FIND_ALL("^\\d+", "m", "123\n4\nXXX56\n", "123", "4")
 
-    REGEX_TEST_FIND_ALL("hello", "i", "hello Hello HELLO","hello","Hello","HELLO")
-    REGEX_TEST_FIND_ALL("(\\d+|[a-z]+)", "", "123abc456def","123","abc","456","def")
+    REGEX_TEST_FIND_ALL("hello", "i", "hello Hello HELLO", "hello", "Hello", "HELLO")
+    REGEX_TEST_FIND_ALL("(\\d+|[a-z]+)", "", "123abc456def", "123", "abc", "456", "def")
     REGEX_TEST_END
 }
