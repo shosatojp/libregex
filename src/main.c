@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     /* 正規表現 */
     regex* _regex = regex_compile(argc > 2
                                       ? argv[2]
-                                      : "(https?)://([\\w\\.\\-]+)(?::(\\d+))?(/[^\\?]+)(\\?.*)?",
+                                      : "(https?)://([\\w.-]+)(?::(\\d+))?(/[^?]+)(\\?.*)?",
                                   argc > 3
                                       ? argv[3]
                                       : "im");
