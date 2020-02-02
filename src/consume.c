@@ -165,6 +165,7 @@ int consume_nor(const char** ptr, regex* m, regex_options* op) {
         regex* mi = array_at(m->ms, i);
         int matched_len;
         if ((matched_len = mi->fn(ptr, mi, op)) > -1) {
+            *ptr = init;
             return RS_FAILED;
         }
     }
