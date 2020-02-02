@@ -7,13 +7,13 @@
 
 int main(int argc, char* argv[]) {
     /* 文字列 */
-    const char *str = argc > 1 ? argv[1] : "https://news.yahoo.co.jp/pickup/6350009?hoge=234",
+    const char *str = argc > 1 ? argv[1] : "https://news.yahoo.co.jp:443/pickup/6350009?hoge=234",
                *ptr = str;
 
     /* 正規表現 */
     regex* _regex = regex_compile(argc > 2
                                       ? argv[2]
-                                      : "(https?)://([\\w\\.\\-]+)(/[^=]+)",
+                                      : "(https?)://([\\w\\.\\-]+)(?::(\\d+))?(/[^\\?]+)(\\?.*)?",
                                   argc > 3
                                       ? argv[3]
                                       : "im");
@@ -47,6 +47,5 @@ int main(int argc, char* argv[]) {
     regex_destruct(_regex);
     free(_regex);
 
-    debug("current : %c (at %ld)\n", *ptr, ptr - str);
     printf("%s\n", result == RS_FAILED ? "FAILED" : "MATCHED");
 }
