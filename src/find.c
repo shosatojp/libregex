@@ -14,7 +14,6 @@ int regex_find_all(const char** ptr, regex* m, regex_found* f) {
         const char* init = *ptr;
         op.head = head;
         int matched_len = regex_match(ptr, m, &op);
-        // printf("matched_len = %d\n", matched_len);
         switch (matched_len) {
             case -1:
                 *ptr = init + 1;
@@ -23,7 +22,6 @@ int regex_find_all(const char** ptr, regex* m, regex_found* f) {
                 char* str = (char*)strcut(init, *ptr - 1);
                 array_push(f->results, str);
                 (*ptr)++;
-                // printf("0 len match.\n");
                 break;
             }
             default: {

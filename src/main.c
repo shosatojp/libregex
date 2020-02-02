@@ -7,13 +7,13 @@
 
 int main(int argc, char* argv[]) {
     /* 文字列 */
-    const char *str = argc > 1 ? argv[1] : "Aa",
+    const char *str = argc > 1 ? argv[1] : "https://news.yahoo.co.jp/pickup/6350009?hoge=234",
                *ptr = str;
 
     /* 正規表現 */
     regex* _regex = regex_compile(argc > 2
                                       ? argv[2]
-                                      : "A",
+                                      : "(https?)://([\\w\\.\\-]+)(/[^=]+)",
                                   argc > 3
                                       ? argv[3]
                                       : "im");
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     regex_found f;
     regex_found_init(&f);
     regex_find_all(&ptr, _regex, &f);
-    array_each_i(f.results, printf("%s\n", (const char*)array_ei));
+    array_each_i(f.results, printf("'%s'\n", (const char*)array_ei));
     // exit(0);
 
     /* init */
