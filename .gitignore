@@ -28,6 +28,8 @@ missing
 Makefile
 libregex
 libregextest
+arraytest
+hashmaptest
 
 *.tar.gz
 *.py
