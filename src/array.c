@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
-void _array_debug(const char* format, ...) {
+static void _array_debug(const char* format, ...) {
 #ifdef DEBUG
     va_list args;
     va_start(args, format);
@@ -13,7 +14,7 @@ void _array_debug(const char* format, ...) {
 #endif
 }
 
-array* array_new(int elem_size, int isptr, int capacity) {
+array* array_new(int elem_size, int isptr, indextype capacity) {
     array* _array = (array*)calloc(sizeof(array), 1);
     array_init(_array, elem_size, isptr);
     array_expand(_array, capacity);
@@ -27,7 +28,7 @@ int array_init(array* _array, int elem_size, int isptr) {
     return 0;
 }
 
-int array_expand(array* _array, int capacity) {
+int array_expand(array* _array, indextype capacity) {
     void** tmp = (void**)malloc(_array->elem_size * capacity);
     if (tmp) {
         if (_array->data) {
@@ -44,11 +45,17 @@ int array_expand(array* _array, int capacity) {
     }
 }
 
+int array_fill(array* _array, indextype _begin, indextype _end, char _c) {
+    _array->length = _array->capacity;
+    memset((char*)_array->data + (_begin * _array->elem_size), _c,
+           (_end - _begin + 1) * _array->elem_size);
+}
+
 int array_push(array* _array, void* e) {
     return array_ins(_array, e, _array->length);
 }
 
-int array_ins(array* _array, void* e, int index) {
+int array_ins(array* _array, void* e, indextype index) {
     if (index > _array->length || index < 0) {
         _array_debug("index out of range.\n");
         return -1;
@@ -70,7 +77,7 @@ int array_ins(array* _array, void* e, int index) {
 /**
  * you need to **destruct** object pointed by deleted ptr
  */
-array_element* array_del(array* _array, int index) {
+array_element* array_del(array* _array, indextype index) {
     if (index >= _array->length || index < 0) {
         _array_debug("index out of range.\n");
         return NULL;
@@ -115,7 +122,7 @@ int array_clear(array* _array) {
     }
 }
 
-void* array_at(array* _array, int index) {
+void* array_at(array* _array, indextype index) {
     void** ptr = (void*)((char*)_array->data + (index * _array->elem_size));
     return _array->isptr ? *ptr : ptr;
 }
@@ -132,8 +139,8 @@ array_element* array_first(array* _array) {
  * overwrite element
  * you need to **destruct** object pointed by overwritten ptr
  */
-array_element* array_set(array* _array, array_element* e, int index) {
-    if (-1 < index && index < _array->length) {
+array_element* array_set(array* _array, array_element* e, indextype index) {
+    if (0 <= index && index < _array->length) {
         void** ptr = (void*)((char*)_array->data + (index * _array->elem_size));
         array_element* p = _array->isptr ? *ptr : NULL;
         memcpy((char*)_array->data + (index * _array->elem_size),

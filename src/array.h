@@ -4,10 +4,11 @@
 #define DEFAULT_CAPACITY 10
 
 typedef void array_element;
+typedef unsigned long indextype;
 
 struct _array {
-    int length;
-    int capacity;
+    indextype length;
+    indextype capacity;
     array_element** data;
     int elem_size;
     int isptr;
@@ -15,17 +16,18 @@ struct _array {
 
 typedef struct _array array;
 
-array* array_new(int elem_size, int isptr, int capacity);
+array* array_new(int elem_size, int isptr, indextype capacity);
 int array_init(array* _array, int elem_size, int isptr);
-int array_expand(array* _array, int capacity);
+int array_expand(array* _array, indextype capacity);
+int array_fill(array* _array, indextype _begin, indextype _end, char _c);
 int array_push(array* _array, array_element* e);
-int array_ins(array* _array, array_element* e, int index);
-array_element* array_del(array* _array, int index);
+int array_ins(array* _array, array_element* e, indextype index);
+array_element* array_del(array* _array, indextype index);
 array_element* array_pop(array* _array);
-array_element* array_at(array* _array, int index);
+array_element* array_at(array* _array, indextype index);
 array_element* array_last(array* _array);
 array_element* array_first(array* _array);
-array_element* array_set(array* _array, array_element* e, int index);
+array_element* array_set(array* _array, array_element* e, indextype index);
 int array_empty(array* _array);
 int array_clear(array* _array);
 
