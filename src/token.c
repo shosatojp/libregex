@@ -7,7 +7,7 @@
 #include "libregex.h"
 
 char tokenize(regex* root, const char** pat) {
-    root->ms = array_new(sizeof(void*), true, 8);
+    root->ms = array_new(sizeof(regex*), true, 8);
 
     char c = '\0';
 
