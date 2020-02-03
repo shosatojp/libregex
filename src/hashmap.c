@@ -20,6 +20,7 @@ char* strdup(const char* str) {
     return dest;
 }
 
+// http://www.cse.yorku.ca/~oz/hash.html#djb2
 hashtype djb2(const char* str) {
     hashtype hash = 5381;
     int c;
@@ -30,6 +31,7 @@ hashtype djb2(const char* str) {
     return hash;
 }
 
+// http://www.cse.yorku.ca/~oz/hash.html#sdbm
 hashtype sdbm(const char* str) {
     hashtype hash = 0;
     int c;
