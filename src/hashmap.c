@@ -73,12 +73,12 @@ bool hashmap_add(hashmap* _m, const char* _key, void* _e) {
 
         if (((double)_m->length / (double)_m->capacity) > MAX_LOAD_FACTOR) {
             debug("load factor exceeded %3.g -> rehash\n", MAX_LOAD_FACTOR);
-            hashmap_rehash(_m, _m->capacity * _m->capacity);
+            _hashmap_rehash(_m, _m->capacity * _m->capacity);
         }
 
         while (_hashmap_add(_m, entry) < 0) {
             debug("no empty slot -> rehash\n");
-            hashmap_rehash(_m, _m->capacity * _m->capacity);
+            _hashmap_rehash(_m, _m->capacity * _m->capacity);
         }
 
         return true;
@@ -146,7 +146,7 @@ int hashmap_del(hashmap* _m, const char* key) {
     _m->length--;
 }
 
-int hashmap_rehash(hashmap* _m, int capacity) {
+int _hashmap_rehash(hashmap* _m, int capacity) {
     debug("rehash %d\n", capacity);
     hashmap* _tmp = hashmap_new(capacity);
     hashmap_init(_tmp, capacity);

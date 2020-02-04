@@ -27,7 +27,7 @@ bool hashmap_contains(hashmap* _m, const char* key);
 void* hashmap_find(hashmap* _m, const char* key);
 hash_entry* _hashmap_find(hashmap* _m, const char* key, hashtype* index);
 int hashmap_del(hashmap* _m, const char* key);
-int hashmap_rehash(hashmap* _m, int capacity);
+int _hashmap_rehash(hashmap* _m, int capacity);
 int hashmap_destruct(hashmap* _m);
 
 /* hash_entry */

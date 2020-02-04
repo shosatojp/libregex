@@ -14,8 +14,8 @@ int main() {
     hashmap_add(fruits, "melon", &c);
 
     /* rehash */
-    // hashmap_rehash(fruits, 10);
-    // hashmap_rehash(fruits, 100);
+    // _hashmap_rehash(fruits, 10);
+    // _hashmap_rehash(fruits, 100);
 
     /* retry inserting after rehash */
     int d = 4;
