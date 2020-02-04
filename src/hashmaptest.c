@@ -14,8 +14,8 @@ int main() {
     hashmap_add(fruits, "melon", &c);
 
     /* rehash */
-    hashmap_rehash(fruits, 10);
-    hashmap_rehash(fruits, 100);
+    // hashmap_rehash(fruits, 10);
+    // hashmap_rehash(fruits, 100);
 
     /* retry inserting after rehash */
     int d = 4;
@@ -24,7 +24,7 @@ int main() {
     /* find */
     int* e = hashmap_find(fruits, "apple");
     if (e) {
-        printf("find apple -> %d\n", *e);
+        printf("find apple = %d\n", *e);
     } else {
         printf("not found\n");
     }

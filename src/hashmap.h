@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "array.h"
+#define DEBUG
+#define MAX_LOAD_FACTOR 0.7
 
 typedef unsigned long hashtype;
 

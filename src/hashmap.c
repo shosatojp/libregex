@@ -66,10 +66,21 @@ bool hashmap_add(hashmap* _m, const char* _key, void* _e) {
         debug("already contains '%s'\n", _key);
         return -2;
     } else {
+        debug("add %s\n", _key);
         hash_entry* entry = hash_entry_new();
         entry->key = strdup(_key);
         entry->ptr = _e;
-        _hashmap_add(_m, entry);
+
+        if (((double)_m->length / (double)_m->capacity) > MAX_LOAD_FACTOR) {
+            debug("load factor exceeded %3.g -> rehash\n", MAX_LOAD_FACTOR);
+            hashmap_rehash(_m, _m->capacity * _m->capacity);
+        }
+
+        while (_hashmap_add(_m, entry) < 0) {
+            debug("no empty slot -> rehash\n");
+            hashmap_rehash(_m, _m->capacity * _m->capacity);
+        }
+
         return true;
     }
 }
@@ -89,8 +100,7 @@ int _hashmap_add(hashmap* _m, hash_entry* _e) {
                 array_set(_m->hash_entries, _e, hash);
                 return 0;
             }
-            if (count++ > _m->capacity) {
-                debug("no empty slot\n");
+            if (count++ >= _m->capacity) {
                 return -1;
             }
         }
@@ -137,6 +147,7 @@ int hashmap_del(hashmap* _m, const char* key) {
 }
 
 int hashmap_rehash(hashmap* _m, int capacity) {
+    debug("rehash %d\n", capacity);
     hashmap* _tmp = hashmap_new(capacity);
     hashmap_init(_tmp, capacity);
     for (hashtype i = 0; i < _m->capacity; ++i) {
