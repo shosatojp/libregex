@@ -1,8 +1,8 @@
 #include "array.h"
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 
 static void _array_debug(const char* format, ...) {
 #ifdef DEBUG
@@ -52,10 +52,10 @@ int array_fill(array* _array, indextype _begin, indextype _end, char _c) {
 }
 
 int array_push(array* _array, void* e) {
-    return array_ins(_array, e, _array->length);
+    return _array_ins(_array, _array->length, e);
 }
 
-int array_ins(array* _array, void* e, indextype index) {
+int _array_ins(array* _array, indextype index, ...) {
     if (index > _array->length || index < 0) {
         _array_debug("index out of range.\n");
         return -1;
@@ -64,11 +64,23 @@ int array_ins(array* _array, void* e, indextype index) {
         _array_debug("failed to expand.\n");
         return -1;
     } else {
+        va_list args;
+        va_start(args, index);
+        char* arg = va_arg(args, char*);
+        printf("%%p = %p\n", &arg);
+        printf("%%d = %d\n", arg);
+        fflush(stdout);
+        va_end(args);
+
         memmove((char*)_array->data + (index + 1) * _array->elem_size,
                 (char*)_array->data + index * _array->elem_size,
                 (_array->length - index) * _array->elem_size);
-        memcpy((char*)_array->data + (index * _array->elem_size),
-               _array->isptr ? &e : e, _array->elem_size);
+        // memcpy((char*)_array->data + (index * _array->elem_size),
+        //    _array->elem_size, &arg);
+        char* ptr = (char*)_array->data + (index * _array->elem_size);
+        for (int i = 0; i < _array->elem_size; ++i) {
+            *ptr = *(char*)(&arg + i);
+        }
         _array->length++;
         return 0;
     }

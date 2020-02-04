@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "array.h"
 
@@ -7,6 +8,13 @@ typedef struct {
 } point;
 
 int main() {
+    array* _array = array_new(sizeof(int), false, 1);
+    array_ins(_array, 0, 3);
+    int* z = array_at(_array, 0);
+    printf("%%d = %d\n", *z);
+
+    exit(0);
+
     point a;
     a.x = 1;
     a.y = 2;
