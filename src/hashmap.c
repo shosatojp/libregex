@@ -148,10 +148,10 @@ int _hashmap_rehash(hashmap* _m, int capacity) {
     }
 
     // copy _tmp to _m
-    _m->capacity = _tmp->capacity;
-    _m->length = _tmp->length;
     array_clear(_m->hash_entries);
     free(_m->hash_entries);
+    _m->capacity = _tmp->capacity;
+    _m->length = _tmp->length;
     _m->hash_entries = _tmp->hash_entries;
 }
 
