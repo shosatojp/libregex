@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "array.h"
-#define DEBUG
+// #define DEBUG
 #define MAX_LOAD_FACTOR 0.7
 
 typedef unsigned long hashtype;
@@ -13,27 +13,28 @@ typedef struct {
 } hash_entry;
 
 typedef struct {
+    int elem_size;
     array* hash_entries;
     hashtype capacity;
     hashtype length;
+    bool isptr;
 } hashmap;
 
 /* hashmap */
-hashmap* hashmap_new(int capacity);
-int hashmap_init(hashmap* _m, int capacity);
-bool hashmap_add(hashmap* _m, const char* _key, void* _e);
-int _hashmap_add(hashmap* _m, hash_entry* _e);
+hashmap* hashmap_new(int elem_size, bool isptr, int capacity);
+int hashmap_init(hashmap* _m, int elem_size, bool isptr, int capacity);
+bool _hashmap_add(hashmap* _m, const char* _key, ...);
+int basic_hashmap_add(hashmap* _m, hash_entry* _e);
 bool hashmap_contains(hashmap* _m, const char* key);
 void* hashmap_find(hashmap* _m, const char* key);
 hash_entry* _hashmap_find(hashmap* _m, const char* key, hashtype* index);
-int hashmap_del(hashmap* _m, const char* key);
+void* hashmap_del(hashmap* _m, const char* key);
 int _hashmap_rehash(hashmap* _m, int capacity);
 int hashmap_destruct(hashmap* _m);
 
 /* hash_entry */
 hash_entry* hash_entry_new();
-int hash_entry_destruct(hash_entry* _e);
-
+int hash_entry_destruct(hash_entry* _e, bool isptr);
 
 /* macros */
 #define _hashmap_each(INDEX, M, STMT)                                                               \
@@ -55,3 +56,5 @@ int hash_entry_destruct(hash_entry* _e);
 #define hashmap_k hashmap_k
 #define hashmap_ek hashmap_ek
 #define hashmap_each_k(M, STMT) _hashmap_each(k, M, STMT)
+
+#define hashmap_add(_m, _key, _e) _hashmap_add(_m, _key, _e)

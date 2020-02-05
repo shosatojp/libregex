@@ -134,7 +134,7 @@ char tokenize(regex* root, const char** pat);
 int regex_destruct(regex* root);
 int matcher_depth(regex* m0);
 void consumer_debug(regex* m, const char* format, ...);
-void debug(const char* format, ...);
+static void debug(const char* format, ...);
 
 /* regex_capture.c */
 regex_capture* regex_capture_new(const char* begin, const char* end);
@@ -152,7 +152,6 @@ regex* next_sibling(regex* m0);
 void put_regex_type(regex_type rt);
 void dump_memory(void* __ptr, int __n);
 void copy_constants(regex* m);
-
 
 /* options.c */
 regex_options* regex_options_new();
