@@ -1,7 +1,7 @@
 #pragma once
 #include <stdbool.h>
-
 #define DEFAULT_CAPACITY 10
+#define DEBUG
 
 typedef void array_element;
 typedef unsigned long indextype;
@@ -11,17 +11,16 @@ struct _array {
     indextype capacity;
     array_element** data;
     int elem_size;
-    int isptr;
+    bool isptr;
 };
 
 typedef struct _array array;
 
-array* array_new(int elem_size, int isptr, indextype capacity);
-int array_init(array* _array, int elem_size, int isptr);
+array* array_new(int elem_size, bool isptr, indextype capacity);
+int array_init(array* _array, int elem_size, bool isptr);
 int array_expand(array* _array, indextype capacity);
 int array_fill(array* _array, indextype _begin, indextype _end, char _c);
-int array_push(array* _array, array_element* e);
-int array_ins(array* _array, array_element* e, indextype index);
+int _array_ins(array* _array, indextype index, ...);
 array_element* array_del(array* _array, indextype index);
 array_element* array_pop(array* _array);
 array_element* array_at(array* _array, indextype index);
@@ -30,6 +29,9 @@ array_element* array_first(array* _array);
 array_element* array_set(array* _array, array_element* e, indextype index);
 int array_empty(array* _array);
 int array_clear(array* _array);
+
+#define array_push(_array, _e) _array_ins(_array, (_array)->length, _e)
+#define array_ins(_array, index, e) _array_ins(_array, index, e)
 
 #define _array_each(INDEX, ARRAY, STMT)                                             \
     for (int array_##INDEX = 0; array_##INDEX < (ARRAY)->length; array_##INDEX++) { \

@@ -1,8 +1,8 @@
 #include "array.h"
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 
 static void _array_debug(const char* format, ...) {
 #ifdef DEBUG
@@ -14,14 +14,14 @@ static void _array_debug(const char* format, ...) {
 #endif
 }
 
-array* array_new(int elem_size, int isptr, indextype capacity) {
+array* array_new(int elem_size, bool isptr, indextype capacity) {
     array* _array = (array*)calloc(sizeof(array), 1);
     array_init(_array, elem_size, isptr);
     array_expand(_array, capacity);
     return _array;
 }
 
-int array_init(array* _array, int elem_size, int isptr) {
+int array_init(array* _array, int elem_size, bool isptr) {
     memset(_array, 0, sizeof(array));
     _array->isptr = isptr;
     _array->elem_size = isptr ? sizeof(void*) : elem_size;
@@ -51,11 +51,7 @@ int array_fill(array* _array, indextype _begin, indextype _end, char _c) {
            (_end - _begin + 1) * _array->elem_size);
 }
 
-int array_push(array* _array, void* e) {
-    return array_ins(_array, e, _array->length);
-}
-
-int array_ins(array* _array, void* e, indextype index) {
+int _array_ins(array* _array, indextype index, ...) {
     if (index > _array->length || index < 0) {
         _array_debug("index out of range.\n");
         return -1;
@@ -64,11 +60,18 @@ int array_ins(array* _array, void* e, indextype index) {
         _array_debug("failed to expand.\n");
         return -1;
     } else {
+        va_list args;
+        va_start(args, index);
+        char* elem_ptr = va_arg(args, char*);
+        va_end(args);
+
         memmove((char*)_array->data + (index + 1) * _array->elem_size,
                 (char*)_array->data + index * _array->elem_size,
                 (_array->length - index) * _array->elem_size);
-        memcpy((char*)_array->data + (index * _array->elem_size),
-               _array->isptr ? &e : e, _array->elem_size);
+        char* ptr = (char*)_array->data + (index * _array->elem_size);
+        for (int i = 0; i < _array->elem_size; ++i) {
+            *(ptr + i) = *((char*)&elem_ptr + i);
+        }
         _array->length++;
         return 0;
     }
