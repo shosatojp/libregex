@@ -14,14 +14,14 @@ static void _array_debug(const char* format, ...) {
 #endif
 }
 
-array* array_new(int elem_size, int isptr, indextype capacity) {
+array* array_new(int elem_size, bool isptr, indextype capacity) {
     array* _array = (array*)calloc(sizeof(array), 1);
     array_init(_array, elem_size, isptr);
     array_expand(_array, capacity);
     return _array;
 }
 
-int array_init(array* _array, int elem_size, int isptr) {
+int array_init(array* _array, int elem_size, bool isptr) {
     memset(_array, 0, sizeof(array));
     _array->isptr = isptr;
     _array->elem_size = isptr ? sizeof(void*) : elem_size;
@@ -51,10 +51,6 @@ int array_fill(array* _array, indextype _begin, indextype _end, char _c) {
            (_end - _begin + 1) * _array->elem_size);
 }
 
-int array_push(array* _array, void* e) {
-    return _array_ins(_array, _array->length, e);
-}
-
 int _array_ins(array* _array, indextype index, ...) {
     if (index > _array->length || index < 0) {
         _array_debug("index out of range.\n");
@@ -66,20 +62,15 @@ int _array_ins(array* _array, indextype index, ...) {
     } else {
         va_list args;
         va_start(args, index);
-        char* arg = va_arg(args, char*);
-        printf("%%p = %p\n", &arg);
-        printf("%%d = %d\n", arg);
-        fflush(stdout);
+        char* elem_ptr = va_arg(args, char*);
         va_end(args);
 
         memmove((char*)_array->data + (index + 1) * _array->elem_size,
                 (char*)_array->data + index * _array->elem_size,
                 (_array->length - index) * _array->elem_size);
-        // memcpy((char*)_array->data + (index * _array->elem_size),
-        //    _array->elem_size, &arg);
         char* ptr = (char*)_array->data + (index * _array->elem_size);
         for (int i = 0; i < _array->elem_size; ++i) {
-            *ptr = *(char*)(&arg + i);
+            *(ptr + i) = *((char*)&elem_ptr + i);
         }
         _array->length++;
         return 0;
