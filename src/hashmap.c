@@ -6,11 +6,11 @@
 
 static void debug(const char* format, ...) {
 #ifdef DEBUG
-    va_list args;
-    va_start(args, format);
-    vprintf(format, args);
-    va_end(args);
-    fflush(stdout);
+    // va_list args;
+    // va_start(args, format);
+    // vprintf(format, args);
+    // va_end(args);
+    // fflush(stdout);
 #endif
 }
 
@@ -64,7 +64,7 @@ bool _hashmap_add(hashmap* _m, const char* _key, ...) {
         debug("already contains '%s'\n", _key);
         return -2;
     } else {
-        debug("add %s\n", _key);
+        // debug("add %s\n", _key);
 
         va_list args;
         va_start(args, _key);
@@ -146,7 +146,8 @@ hash_entry* _hashmap_find(hashmap* _m, const char* key, hashtype* index) {
 }
 
 /**
- * you need to destruct object pointed by pointer of non pointer element.
+ *  you need to destruct object pointed by pointer 
+ *  which is member of non pointer element.
  */
 void* hashmap_del(hashmap* _m, const char* key) {
     hashtype index = 0;
@@ -175,7 +176,6 @@ int _hashmap_rehash(hashmap* _m, int capacity) {
     // copy _tmp to _m
     array_clear(_m->hash_entries);
     free(_m->hash_entries);
-    _m->hash_entries = NULL;
     _m->capacity = _tmp->capacity;
     _m->length = _tmp->length;
     _m->hash_entries = _tmp->hash_entries;
@@ -196,7 +196,8 @@ hash_entry* hash_entry_new() {
 }
 
 /**
- * you need to destruct object pointed by pointer of non pointer element.
+ *  you need to destruct object pointed by pointer 
+ *  which is member of non pointer element.
  */
 int hash_entry_destruct(hash_entry* _e, bool isptr) {
     if (_e) {
